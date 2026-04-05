@@ -7,12 +7,16 @@ class VehicleCard extends StatelessWidget {
   final Vehicle vehicle;
   final VoidCallback onTap;
   final VoidCallback onLongPress;
+  final VoidCallback? onEdit;
+  final VoidCallback? onDelete;
 
   const VehicleCard({
     super.key,
     required this.vehicle,
     required this.onTap,
     required this.onLongPress,
+    this.onEdit,
+    this.onDelete,
   });
 
   Color _getBatteryColor(double battery) {
@@ -45,7 +49,11 @@ class VehicleCard extends StatelessWidget {
                   width: 120,
                   height: 80,
                   color: Colors.white10,
-                  child: const Icon(LucideIcons.car, color: Colors.white54, size: 40),
+                  child: const Icon(
+                    LucideIcons.car,
+                    color: Colors.white54,
+                    size: 40,
+                  ),
                 ),
               ),
             ),
@@ -67,7 +75,10 @@ class VehicleCard extends StatelessWidget {
                   ),
                   const SizedBox(height: 4),
                   Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 8,
+                      vertical: 2,
+                    ),
                     decoration: BoxDecoration(
                       color: Colors.white.withOpacity(0.1),
                       borderRadius: BorderRadius.circular(4),
@@ -96,7 +107,11 @@ class VehicleCard extends StatelessWidget {
                         ),
                       ),
                       const SizedBox(width: 12),
-                      const Icon(LucideIcons.mapPin, color: Colors.white54, size: 14),
+                      const Icon(
+                        LucideIcons.mapPin,
+                        color: Colors.white54,
+                        size: 14,
+                      ),
                       const SizedBox(width: 4),
                       Expanded(
                         child: Text(
@@ -110,10 +125,33 @@ class VehicleCard extends StatelessWidget {
                         ),
                       ),
                     ],
-                  )
+                  ),
                 ],
               ),
             ),
+            if (onEdit != null || onDelete != null) ...[
+              const SizedBox(width: 8),
+              Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  if (onEdit != null)
+                    IconButton(
+                      icon: const Icon(LucideIcons.edit, color: Colors.white70),
+                      onPressed: onEdit,
+                      tooltip: 'Edit',
+                    ),
+                  if (onDelete != null)
+                    IconButton(
+                      icon: const Icon(
+                        LucideIcons.trash2,
+                        color: Colors.redAccent,
+                      ),
+                      onPressed: onDelete,
+                      tooltip: 'Delete',
+                    ),
+                ],
+              ),
+            ],
           ],
         ),
       ),

@@ -1,3 +1,5 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
+
 class DistanceLog {
   final String id;
   final String vehicleId;
@@ -11,12 +13,31 @@ class DistanceLog {
     required this.distance,
   });
 
+  static double _parseDouble(dynamic value) {
+    if (value == null) return 0.0;
+    if (value is double) return value;
+    if (value is int) return value.toDouble();
+    if (value is num) return value.toDouble();
+    if (value is String) return double.tryParse(value) ?? 0.0;
+    return 0.0;
+  }
+
+  static DateTime _parseDate(dynamic value) {
+    if (value == null) return DateTime.now();
+    if (value is DateTime) return value;
+    if (value is Timestamp) return value.toDate();
+    if (value is String) {
+      return DateTime.tryParse(value) ?? DateTime.now();
+    }
+    return DateTime.now();
+  }
+
   factory DistanceLog.fromJson(Map<String, dynamic> json) {
     return DistanceLog(
-      id: json['id'] as String,
-      vehicleId: json['vehicleId'] as String,
-      date: DateTime.parse(json['date'] as String),
-      distance: (json['distance'] as num).toDouble(),
+      id: json['id']?.toString() ?? '',
+      vehicleId: json['vehicleId']?.toString() ?? '',
+      date: _parseDate(json['date']),
+      distance: _parseDouble(json['distance']),
     );
   }
 

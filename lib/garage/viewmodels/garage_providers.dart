@@ -10,8 +10,13 @@ final garageRepositoryProvider = Provider<GarageRepository>((ref) {
 });
 
 final vehiclesProvider = FutureProvider<List<Vehicle>>((ref) async {
+  print('vehiclesProvider: start seedFirebaseIfEmpty');
   final repo = ref.read(garageRepositoryProvider);
-  return repo.getVehicles();
+  await repo.seedFirebaseIfEmpty();
+  print('vehiclesProvider: start getVehicles');
+  final vehicles = await repo.getVehicles();
+  print('vehiclesProvider: completed with ${vehicles.length} vehicles');
+  return vehicles;
 });
 
 class SelectedVehicleIdNotifier extends Notifier<String?> {

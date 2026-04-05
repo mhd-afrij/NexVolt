@@ -1,3 +1,5 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
+
 class TimelineEvent {
   final String id;
   final String vehicleId;
@@ -17,15 +19,43 @@ class TimelineEvent {
     required this.progress,
   });
 
+  static int _parseInt(dynamic value) {
+    if (value == null) return 0;
+    if (value is int) return value;
+    if (value is double) return value.toInt();
+    if (value is num) return value.toInt();
+    if (value is String) return int.tryParse(value) ?? 0;
+    return 0;
+  }
+
+  static double _parseDouble(dynamic value) {
+    if (value == null) return 0.0;
+    if (value is double) return value;
+    if (value is int) return value.toDouble();
+    if (value is num) return value.toDouble();
+    if (value is String) return double.tryParse(value) ?? 0.0;
+    return 0.0;
+  }
+
+  static DateTime _parseDate(dynamic value) {
+    if (value == null) return DateTime.now();
+    if (value is DateTime) return value;
+    if (value is Timestamp) return value.toDate();
+    if (value is String) {
+      return DateTime.tryParse(value) ?? DateTime.now();
+    }
+    return DateTime.now();
+  }
+
   factory TimelineEvent.fromJson(Map<String, dynamic> json) {
     return TimelineEvent(
-      id: json['id'] as String,
-      vehicleId: json['vehicleId'] as String,
-      title: json['title'] as String,
-      type: json['type'] as String,
-      mileage: json['mileage'] as int,
-      date: DateTime.parse(json['date'] as String),
-      progress: (json['progress'] as num).toDouble(),
+      id: json['id']?.toString() ?? '',
+      vehicleId: json['vehicleId']?.toString() ?? '',
+      title: json['title']?.toString() ?? '',
+      type: json['type']?.toString() ?? '',
+      mileage: _parseInt(json['mileage']),
+      date: _parseDate(json['date']),
+      progress: _parseDouble(json['progress']),
     );
   }
 

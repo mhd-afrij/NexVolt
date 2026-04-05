@@ -39,6 +39,9 @@ dependencies:
   google_fonts: ^8.0.2
   lucide_icons: ^0.257.0
   intl: ^0.20.2
+  http: ^1.6.0
+  firebase_core: ^4.6.0
+  cloud_firestore: ^6.2.0
 
 dev_dependencies:
   flutter_test:

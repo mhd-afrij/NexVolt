@@ -99,7 +99,7 @@ class AppAnimations {
     );
     return AnimatedBuilder(
       animation: controller,
-      builder: (_, __) => FadeTransition(
+      builder: (_, _) => FadeTransition(
         opacity: fadeAnim,
         child: ScaleTransition(scale: scaleAnim, child: child),
       ),
@@ -111,8 +111,8 @@ class AppAnimations {
   /// Usage: Navigator.push(context, AppAnimations.slideUp(MyScreen()))
   static PageRoute<T> slideUp<T>(Widget page) {
     return PageRouteBuilder<T>(
-      pageBuilder: (_, animation, __) => page,
-      transitionsBuilder: (_, animation, __, child) {
+      pageBuilder: (_, animation, _) => page,
+      transitionsBuilder: (_, animation, _, child) {
         final tween = Tween(
           begin: const Offset(0, 1),
           end: Offset.zero,
@@ -130,8 +130,8 @@ class AppAnimations {
   /// Smooth fade for screen replacements (e.g. splash → home).
   static PageRoute<T> fade<T>(Widget page) {
     return PageRouteBuilder<T>(
-      pageBuilder: (_, animation, __) => page,
-      transitionsBuilder: (_, animation, __, child) =>
+      pageBuilder: (_, animation, _) => page,
+      transitionsBuilder: (_, animation, _, child) =>
           FadeTransition(opacity: animation, child: child),
       transitionDuration: const Duration(milliseconds: 350),
     );
@@ -141,8 +141,8 @@ class AppAnimations {
   /// For going "forward" in a flow (left → right feel).
   static PageRoute<T> slideRight<T>(Widget page) {
     return PageRouteBuilder<T>(
-      pageBuilder: (_, animation, __) => page,
-      transitionsBuilder: (_, animation, __, child) {
+      pageBuilder: (_, animation, _) => page,
+      transitionsBuilder: (_, animation, _, child) {
         final tween = Tween(
           begin: const Offset(1, 0),
           end: Offset.zero,
