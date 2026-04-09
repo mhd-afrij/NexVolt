@@ -23,14 +23,21 @@
   <!-- iOS meta tags & icons -->
   <meta name="mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black">
-  <meta name="apple-mobile-web-app-title" content="nexvolt">
+  <meta name="apple-mobile-web-app-title" content="Nexvolt">
   <link rel="apple-touch-icon" href="icons/Icon-192.png">
 
   <!-- Favicon -->
   <link rel="icon" type="image/png" href="favicon.png"/>
 
-  <title>nexvolt</title>
+  <title>Nexvolt</title>
   <link rel="manifest" href="manifest.json">
+  <script>
+    // Called by Google Maps JS when auth or key restrictions fail.
+    window.gm_authFailure = function () {
+      console.error('Google Maps authentication failed. Check key and referrer restrictions.');
+    };
+  </script>
+  <script async defer src="https://maps.googleapis.com/maps/api/js?key=YOUR_GOOGLE_MAPS_API_KEY&loading=async&libraries=places"></script>
 </head>
 <body>
   <script src="flutter_bootstrap.js" async></script>
