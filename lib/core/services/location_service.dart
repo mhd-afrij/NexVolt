@@ -4,6 +4,8 @@ import 'package:geocoding/geocoding.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:http/http.dart' as http;
 
+import '../config/api_keys.dart';
+
 class GeocodeResult {
   const GeocodeResult({
     required this.latitude,
@@ -43,7 +45,7 @@ class AutocompleteResponse {
 }
 
 class LocationService {
-  static const String _geoapifyApiKey = 'c4bb4a36238e4394948c0249565e7cd0';
+  static String get _geoapifyApiKey => ApiKeys.geoapifyApiKey;
 
   static Uri geoapifyPlaceDetailsUri({
     required String placeId,
