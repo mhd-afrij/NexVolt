@@ -19,6 +19,20 @@ import '../screens/planner/trip_planner_screen.dart';
 import '../screens/station/reserve_slot_screen.dart';
 import '../screens/station/station_details_screen.dart';
 import '../screens/station/station_list_screen.dart';
+import '../models/station_model.dart';
+
+class StationListArgs {
+  const StationListArgs({this.mainTabIndex = 0});
+
+  final int mainTabIndex;
+}
+
+class StationDetailsArgs {
+  const StationDetailsArgs({this.station, this.mainTabIndex = 0});
+
+  final StationModel? station;
+  final int mainTabIndex;
+}
 
 class AppRoutes {
   AppRoutes._();
@@ -58,17 +72,39 @@ class AppRoutes {
       case otp:
         return MaterialPageRoute(builder: (_) => const OtpScreen());
       case home:
+        final initialTab = settings.arguments is int
+            ? settings.arguments as int
+            : 0;
         return MaterialPageRoute(
           builder: (_) => HomeScreen(
             repository: repository,
             startupWarning: startupWarning,
             enableMaps: enableMaps,
+            initialTab: initialTab,
           ),
         );
       case stationList:
-        return MaterialPageRoute(builder: (_) => const StationListScreen());
+        final mainTabIndex = settings.arguments is StationListArgs
+            ? (settings.arguments as StationListArgs).mainTabIndex
+            : 0;
+        return MaterialPageRoute(
+          builder: (_) => StationListScreen(mainTabIndex: mainTabIndex),
+        );
       case stationDetails:
-        return MaterialPageRoute(builder: (_) => const StationDetailsScreen());
+        final station = settings.arguments is StationDetailsArgs
+            ? (settings.arguments as StationDetailsArgs).station
+            : settings.arguments is StationModel
+            ? settings.arguments as StationModel
+            : null;
+        final mainTabIndex = settings.arguments is StationDetailsArgs
+            ? (settings.arguments as StationDetailsArgs).mainTabIndex
+            : 0;
+        return MaterialPageRoute(
+          builder: (_) => StationDetailsScreen(
+            station: station,
+            mainTabIndex: mainTabIndex,
+          ),
+        );
       case reserveSlot:
         return MaterialPageRoute(builder: (_) => const ReserveSlotScreen());
       case booking:

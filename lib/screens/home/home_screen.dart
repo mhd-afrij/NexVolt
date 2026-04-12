@@ -20,18 +20,26 @@ class HomeScreen extends StatefulWidget {
     required this.repository,
     this.startupWarning,
     required this.enableMaps,
+    this.initialTab = 0,
   });
 
   final AppRepository repository;
   final String? startupWarning;
   final bool enableMaps;
+  final int initialTab;
 
   @override
   State<HomeScreen> createState() => _HomeScreenState();
 }
 
 class _HomeScreenState extends State<HomeScreen> {
-  int _index = 0;
+  late int _index;
+
+  @override
+  void initState() {
+    super.initState();
+    _index = widget.initialTab.clamp(0, 4);
+  }
 
   void _goToTab(int value) {
     setState(() => _index = value);

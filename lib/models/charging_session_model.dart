@@ -1,5 +1,3 @@
-import 'package:cloud_firestore/cloud_firestore.dart';
-
 class ChargingSessionModel {
   ChargingSessionModel({
     required this.stationName,
@@ -14,10 +12,10 @@ class ChargingSessionModel {
   factory ChargingSessionModel.fromMap(Map<String, dynamic> map) {
     final raw = map['timestamp'];
     DateTime parsed;
-    if (raw is Timestamp) {
-      parsed = raw.toDate();
-    } else if (raw is DateTime) {
+    if (raw is DateTime) {
       parsed = raw;
+    } else if (raw is String) {
+      parsed = DateTime.tryParse(raw) ?? DateTime.now();
     } else {
       parsed = DateTime.now();
     }
@@ -27,5 +25,13 @@ class ChargingSessionModel {
       energyKwh: (map['energyKwh'] as num?)?.toDouble() ?? 0,
       timestamp: parsed,
     );
+  }
+
+  Map<String, dynamic> toMap() {
+    return {
+      'stationName': stationName,
+      'energyKwh': energyKwh,
+      'timestamp': timestamp,
+    };
   }
 }

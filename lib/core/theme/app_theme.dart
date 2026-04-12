@@ -22,8 +22,22 @@ class AppTheme {
         onSurface: AppColors.textPrimary,
       ),
       textTheme: AppTextStyles.textTheme,
+      dividerColor: AppColors.cardBorder,
       scaffoldBackgroundColor: AppColors.backgroundTop,
       cardColor: AppColors.cardBackground,
+      appBarTheme: const AppBarTheme(
+        backgroundColor: AppColors.backgroundTop,
+        foregroundColor: AppColors.textPrimary,
+        elevation: 0,
+      ),
+      cardTheme: CardThemeData(
+        color: AppColors.cardBackground,
+        elevation: 0,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(16),
+          side: const BorderSide(color: AppColors.cardBorder),
+        ),
+      ),
       navigationBarTheme: NavigationBarThemeData(
         backgroundColor: AppColors.navBackground,
         indicatorColor: AppColors.primary.withValues(alpha: 0.22),
@@ -40,6 +54,36 @@ class AppTheme {
             fontWeight: active ? FontWeight.w600 : FontWeight.w500,
           );
         }),
+      ),
+      filledButtonTheme: FilledButtonThemeData(
+        style: FilledButton.styleFrom(
+          backgroundColor: AppColors.primary,
+          foregroundColor: AppColors.backgroundTop,
+          textStyle: const TextStyle(fontWeight: FontWeight.w700),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(14),
+          ),
+        ),
+      ),
+      outlinedButtonTheme: OutlinedButtonThemeData(
+        style: OutlinedButton.styleFrom(
+          foregroundColor: AppColors.primary,
+          side: const BorderSide(color: AppColors.textPrimary),
+          textStyle: const TextStyle(fontWeight: FontWeight.w600),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(14),
+          ),
+        ),
+      ),
+      elevatedButtonTheme: ElevatedButtonThemeData(
+        style: ElevatedButton.styleFrom(
+          backgroundColor: AppColors.primary,
+          foregroundColor: AppColors.backgroundTop,
+          textStyle: const TextStyle(fontWeight: FontWeight.w700),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(14),
+          ),
+        ),
       ),
       inputDecorationTheme: InputDecorationTheme(
         filled: true,

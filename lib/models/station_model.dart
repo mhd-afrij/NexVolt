@@ -25,4 +25,14 @@ class StationModel {
       longitude: (map['longitude'] as num?)?.toDouble() ?? 79.8612,
     );
   }
+
+  Map<String, dynamic> toMap() {
+    return {
+      'name': name,
+      'address': address,
+      'distanceKm': distanceKm,
+      'latitude': latitude,
+      'longitude': longitude,
+    };
+  }
 }

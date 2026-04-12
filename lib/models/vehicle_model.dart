@@ -16,4 +16,8 @@ class VehicleModel {
       batteryPercent: (map['batteryPercent'] as num?)?.toInt() ?? 0,
     );
   }
+
+  Map<String, dynamic> toMap() {
+    return {'model': model, 'plate': plate, 'batteryPercent': batteryPercent};
+  }
 }

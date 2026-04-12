@@ -6,15 +6,11 @@ void main() {
   testWidgets('Dashboard renders with profile greeting', (
     WidgetTester tester,
   ) async {
-    final repository = AppRepository(firebaseReady: false);
+    final repository = AppRepository();
     await repository.seedDefaults();
 
     await tester.pumpWidget(
-      NexVoltApp(
-        repository: repository,
-        firebaseReady: false,
-        enableMaps: false,
-      ),
+      NexVoltApp(repository: repository, enableMaps: false),
     );
 
     await tester.pump(const Duration(milliseconds: 600));

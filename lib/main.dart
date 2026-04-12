@@ -1,12 +1,11 @@
 import 'dart:async';
 
-import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 
 import 'app.dart';
+import 'core/services/firebase_bootstrap_service.dart';
 import 'core/services/firestore_service.dart';
-import 'firebase_options.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -15,14 +14,9 @@ Future<void> main() async {
 }
 
 class _BootstrapState {
-  const _BootstrapState({
-    required this.repository,
-    required this.firebaseReady,
-    this.startupWarning,
-  });
+  const _BootstrapState({required this.repository, this.startupWarning});
 
   final AppRepository repository;
-  final bool firebaseReady;
   final String? startupWarning;
 }
 
@@ -42,48 +36,21 @@ class _BootstrapAppState extends State<_BootstrapApp> {
   late final Future<_BootstrapState> _startupFuture = _prepareStartup();
 
   Future<_BootstrapState> _prepareStartup() async {
+    final firebase = await FirebaseBootstrapService.initialize();
+    final repository = AppRepository(useRemoteDb: firebase.isEnabled);
+    await repository.seedDefaults().timeout(const Duration(seconds: 8));
+
+    final warningParts = <String>[];
     if (kIsWeb) {
-      final localRepository = AppRepository(firebaseReady: false);
-      await localRepository.seedDefaults();
-      return _BootstrapState(
-        repository: localRepository,
-        firebaseReady: false,
-        startupWarning: 'Running with local data on web localhost.',
-      );
+      warningParts.add('Running with local data on web localhost.');
     }
-
-    var firebaseReady = false;
-    String? startupWarning;
-    late AppRepository repository;
-
-    try {
-      await Firebase.initializeApp(
-        options: DefaultFirebaseOptions.currentPlatform,
-      ).timeout(const Duration(seconds: 8));
-      firebaseReady = true;
-    } catch (_) {
-      startupWarning = 'Firebase init failed. Running with local data.';
-    }
-
-    repository = AppRepository(firebaseReady: firebaseReady);
-
-    if (firebaseReady) {
-      try {
-        await repository.seedDefaults().timeout(const Duration(seconds: 8));
-      } catch (_) {
-        firebaseReady = false;
-        startupWarning = 'Cloud sync unavailable. Running with local data.';
-        repository = AppRepository(firebaseReady: false);
-        await repository.seedDefaults();
-      }
-    } else {
-      await repository.seedDefaults();
+    if (firebase.warning != null) {
+      warningParts.add(firebase.warning!);
     }
 
     return _BootstrapState(
       repository: repository,
-      firebaseReady: firebaseReady,
-      startupWarning: startupWarning,
+      startupWarning: warningParts.isEmpty ? null : warningParts.join(' '),
     );
   }
 
@@ -101,10 +68,9 @@ class _BootstrapAppState extends State<_BootstrapApp> {
 
         final state = snapshot.data;
         if (state == null) {
-          final fallbackRepo = AppRepository(firebaseReady: false);
+          final fallbackRepo = AppRepository();
           return NexVoltApp(
             repository: fallbackRepo,
-            firebaseReady: false,
             startupWarning: 'Startup failed. Running with local data.',
             enableMaps: !kIsWeb || _enableWebMaps,
           );
@@ -112,7 +78,6 @@ class _BootstrapAppState extends State<_BootstrapApp> {
 
         return NexVoltApp(
           repository: state.repository,
-          firebaseReady: state.firebaseReady,
           startupWarning: state.startupWarning,
           enableMaps: !kIsWeb || _enableWebMaps,
         );

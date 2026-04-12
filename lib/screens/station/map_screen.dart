@@ -316,7 +316,7 @@ class _MapScreenState extends State<MapScreen> {
                       curve: Curves.easeOutCubic,
                       height: 52,
                       decoration: BoxDecoration(
-                        color: const Color(0xB30F172A),
+                        color: AppColors.cardBackground.withValues(alpha: 0.7),
                         borderRadius: BorderRadius.circular(30),
                         border: Border.all(
                           color: AppColors.accent.withValues(alpha: 0.45),
@@ -381,7 +381,9 @@ class _MapScreenState extends State<MapScreen> {
                     width: 48,
                     height: 48,
                     decoration: BoxDecoration(
-                      color: const Color(0xB31E293B),
+                      color: AppColors.cardBackgroundElevated.withValues(
+                        alpha: 0.7,
+                      ),
                       borderRadius: BorderRadius.circular(24),
                       border: Border.all(
                         color: AppColors.primary.withValues(alpha: 0.55),
@@ -405,7 +407,9 @@ class _MapScreenState extends State<MapScreen> {
                       margin: const EdgeInsets.only(top: 6),
                       constraints: const BoxConstraints(maxHeight: 200),
                       decoration: BoxDecoration(
-                        color: const Color(0xE61E293B),
+                        color: AppColors.cardBackgroundElevated.withValues(
+                          alpha: 0.9,
+                        ),
                         borderRadius: BorderRadius.circular(14),
                         border: Border.all(
                           color: AppColors.accent.withValues(alpha: 0.3),
@@ -495,7 +499,7 @@ class _MapScreenState extends State<MapScreen> {
                                     end: Alignment.bottomRight,
                                     colors: [
                                       AppColors.cardBackground,
-                                      Color(0xFF0B1220),
+                                      AppColors.backgroundTop,
                                     ],
                                   ),
                                 ),
@@ -529,7 +533,9 @@ class _MapScreenState extends State<MapScreen> {
                             heroTag: 'map-qr',
                             icon: Icons.qr_code_scanner,
                             color: AppColors.primary,
-                            shadowColor: const Color(0xFF4ADE80),
+                            shadowColor: AppColors.primary.withValues(
+                              alpha: 0.8,
+                            ),
                             onTap: () => Navigator.pushNamed(
                               context,
                               AppRoutes.qrScanner,
@@ -543,8 +549,14 @@ class _MapScreenState extends State<MapScreen> {
               ),
               const SizedBox(height: 14),
               InkWell(
-                onTap: () =>
-                    Navigator.pushNamed(context, AppRoutes.stationDetails),
+                onTap: () => Navigator.pushNamed(
+                  context,
+                  AppRoutes.stationDetails,
+                  arguments: StationDetailsArgs(
+                    station: station,
+                    mainTabIndex: 0,
+                  ),
+                ),
                 borderRadius: BorderRadius.circular(20),
                 child: AnimatedContainer(
                   duration: _anim300,
@@ -552,7 +564,9 @@ class _MapScreenState extends State<MapScreen> {
                   width: double.infinity,
                   padding: const EdgeInsets.all(16),
                   decoration: BoxDecoration(
-                    color: const Color(0xCC1E293B),
+                    color: AppColors.cardBackgroundElevated.withValues(
+                      alpha: 0.8,
+                    ),
                     borderRadius: BorderRadius.circular(20),
                     border: Border.all(
                       color: AppColors.primary.withValues(alpha: 0.25),

@@ -8,13 +8,11 @@ class NexVoltApp extends StatelessWidget {
   const NexVoltApp({
     super.key,
     required this.repository,
-    required this.firebaseReady,
     this.startupWarning,
     this.enableMaps = true,
   });
 
   final AppRepository repository;
-  final bool firebaseReady;
   final String? startupWarning;
   final bool enableMaps;
 

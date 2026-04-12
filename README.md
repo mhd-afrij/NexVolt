@@ -48,3 +48,38 @@ To enable map rendering on web, run with:
 ```bash
 flutter run -d chrome --dart-define=ENABLE_WEB_MAPS=true
 ```
+
+## Firebase Firestore Setup
+
+This app now uses Cloud Firestore as the primary database. On first run it seeds default data into these collections:
+
+- `profiles` (document: `default`)
+- `vehicles`
+- `stations`
+- `charging_activity`
+
+### 1. Configure Firebase for the app
+
+```bash
+dart pub global activate flutterfire_cli
+dart pub global run flutterfire_cli:flutterfire configure
+```
+
+This command generates platform configuration and links Android/iOS/web to your Firebase project.
+
+### 2. Android specific check
+
+Ensure `android/app/google-services.json` exists (created by FlutterFire configure or downloaded from Firebase console).
+
+### 3. iOS specific check
+
+Ensure `ios/Runner/GoogleService-Info.plist` exists.
+
+### 4. Install packages and run
+
+```bash
+flutter pub get
+flutter run
+```
+
+If Firebase is not configured yet, the app falls back to local in-memory data and shows a startup warning.
