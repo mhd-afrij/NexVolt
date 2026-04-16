@@ -5,6 +5,7 @@ class AppColors {
 
   // ── Primary Brand Colors ──────────────────────────────
   static const Color emeraldGreen = Color(0xFF50C878);
+  static const Color evGreen = Color(0xFF28C741);
   static const Color electricBlue = Color(0xFF0077FF);
 
   // ── Gradient (used on every screen background) ────────
