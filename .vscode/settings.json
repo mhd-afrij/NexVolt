@@ -1,3 +1,7 @@
 {
-    "cmake.sourceDirectory": "D:/Projects/flutter_application_1/linux"
+    "cmake.ignoreCMakeListsMissing": true,
+    "cSpell.words": [
+        "nexvolt"
+    ],
+    "java.configuration.updateBuildConfiguration": "interactive"
 }
