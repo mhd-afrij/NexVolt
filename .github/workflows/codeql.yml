@@ -46,11 +46,11 @@ jobs:
         - language: c-cpp
           build-mode: manual
         - language: java-kotlin
-          build-mode: autobuild
+          build-mode: manual
         - language: javascript-typescript
           build-mode: none
         - language: swift
-          build-mode: autobuild
+          build-mode: manual
         # CodeQL supports the following values keywords for 'language': 'actions', 'c-cpp', 'csharp', 'go', 'java-kotlin', 'javascript-typescript', 'python', 'ruby', 'rust', 'swift'
         # Use `c-cpp` to analyze code written in C, C++ or both
         # Use 'java-kotlin' to analyze code written in Java, Kotlin or both
@@ -67,7 +67,7 @@ jobs:
     # This includes steps like installing compilers or runtimes (`actions/setup-node`
     # or others). This is typically only required for manual builds.
     - name: Set up Flutter
-      if: matrix.language == 'c-cpp'
+      if: matrix.language == 'c-cpp' || matrix.language == 'swift'
       uses: subosito/flutter-action@v2
       with:
         channel: stable
@@ -91,8 +91,8 @@ jobs:
     # to build your code.
     # ℹ️ Command-line programs to run using the OS shell.
     # 📚 See https://docs.github.com/en/actions/using-workflows/workflow-syntax-for-github-actions#jobsjob_idstepsrun
-    - name: Run manual build steps
-      if: matrix.build-mode == 'manual'
+    - name: Run manual build steps (C/C++)
+      if: matrix.language == 'c-cpp'
       shell: bash
       run: |
         sudo apt-get update
@@ -101,6 +101,28 @@ jobs:
         flutter config --enable-linux-desktop
         flutter pub get
         flutter build linux --release
+
+    - name: Run manual build steps (Java/Kotlin)
+      if: matrix.language == 'java-kotlin'
+      shell: bash
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y openjdk-17-jdk gradle
+        if [ -f android/gradlew ]; then
+          cd android
+          chmod +x gradlew
+          ./gradlew --no-daemon assembleDebug
+        else
+          gradle -p android --no-daemon assembleDebug
+        fi
+
+    - name: Run manual build steps (Swift)
+      if: matrix.language == 'swift'
+      shell: bash
+      run: |
+        flutter --version
+        flutter pub get
+        flutter build ios --simulator --debug --no-codesign
 
     - name: Perform CodeQL Analysis
       uses: github/codeql-action/analyze@v4
