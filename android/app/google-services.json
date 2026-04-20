@@ -1,0 +1,67 @@
+{
+  "project_info": {
+    "project_number": "1996065895",
+    "project_id": "nexvolt-b9d46",
+    "storage_bucket": "nexvolt-b9d46.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:1996065895:android:8ba76f41e925c5071058c2",
+        "android_client_info": {
+          "package_name": "com.example.flutter_application_1"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDNhatJwn4ffGdBOjpRRgQQj4VGrQOXKp8"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:1996065895:android:7566a30d73d8205a1058c2",
+        "android_client_info": {
+          "package_name": "com.example.flutter_application_2"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDNhatJwn4ffGdBOjpRRgQQj4VGrQOXKp8"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:1996065895:android:5a5d4bf01b5cc76a1058c2",
+        "android_client_info": {
+          "package_name": "com.snapsid.loginuicolors"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDNhatJwn4ffGdBOjpRRgQQj4VGrQOXKp8"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
