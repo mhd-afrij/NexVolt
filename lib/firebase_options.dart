@@ -41,7 +41,7 @@ class DefaultFirebaseOptions {
   }
 
   static const FirebaseOptions web = FirebaseOptions(
-    apiKey: 'AIzaSyDVJiqGOd8qnYzEnuUF1NjhRzeb1TKvc3I',
+    apiKey: '',
     appId: '1:30592806656:web:12b860c32c62fc7f067ab5',
     messagingSenderId: '30592806656',
     projectId: 'nexvolt-493704',
