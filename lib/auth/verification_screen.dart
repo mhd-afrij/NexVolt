@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'otp_screen.dart';
+import '../core/constants/app_colors.dart';
 
 class VerificationScreen extends StatefulWidget {
   const VerificationScreen({super.key});
@@ -35,6 +36,13 @@ class _VerificationScreenState extends State<VerificationScreen>
     )..repeat(reverse: true);
   }
 
+  @override
+  void dispose() {
+    _phoneController.dispose();
+    _controller.dispose();
+    super.dispose();
+  }
+
   void validateNumber(String value) {
     if (value.length == 9 && RegExp(r'^[0-9]+$').hasMatch(value)) {
       setState(() => isValid = true);
@@ -44,6 +52,7 @@ class _VerificationScreenState extends State<VerificationScreen>
   }
 
   Future<void> sendOTP() async {
+    if (!mounted) return;
     setState(() => isLoading = true);
 
     String number = _phoneController.text.trim();
@@ -54,60 +63,83 @@ class _VerificationScreenState extends State<VerificationScreen>
 
     String phoneNumber = selectedCode + number;
 
-    await FirebaseAuth.instance.verifyPhoneNumber(
-      phoneNumber: phoneNumber,
-      verificationCompleted: (PhoneAuthCredential credential) async {
-        await FirebaseAuth.instance.signInWithCredential(credential);
-      },
-      verificationFailed: (FirebaseAuthException e) {
-        setState(() => isLoading = false);
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text(e.message ?? "Verification Failed")),
-        );
-      },
-      codeSent: (String verificationId, int? resendToken) {
-        setState(() => isLoading = false);
-        Navigator.push(
-          context,
-          MaterialPageRoute(
-            builder: (_) => OtpScreen(
-              verificationId: verificationId,
-              phoneNumber: phoneNumber,
+    try {
+      await FirebaseAuth.instance.verifyPhoneNumber(
+        phoneNumber: phoneNumber,
+        verificationCompleted: (PhoneAuthCredential credential) async {
+          await FirebaseAuth.instance.signInWithCredential(credential);
+        },
+        verificationFailed: (FirebaseAuthException e) {
+          if (!mounted) return;
+          setState(() => isLoading = false);
+          final message = e.code == 'operation-not-allowed'
+              ? 'Phone sign-in is disabled for this Firebase project.'
+              : (e.message ?? "Verification Failed");
+          ScaffoldMessenger.of(
+            context,
+          ).showSnackBar(SnackBar(content: Text(message)));
+        },
+        codeSent: (String verificationId, int? resendToken) {
+          if (!mounted) return;
+          setState(() => isLoading = false);
+          Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (_) => OtpScreen(
+                verificationId: verificationId,
+                phoneNumber: phoneNumber,
+              ),
             ),
-          ),
-        );
-      },
-      codeAutoRetrievalTimeout: (String verificationId) {},
-    );
+          );
+        },
+        codeAutoRetrievalTimeout: (String verificationId) {
+          if (!mounted) return;
+          setState(() => isLoading = false);
+        },
+      );
+    } catch (e) {
+      if (!mounted) return;
+      setState(() => isLoading = false);
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text('Failed to send OTP: $e')));
+    }
   }
 
   // 🔥 Animated Button
-  Widget animatedButton(
-    String text,
-    Color startColor,
-    Color endColor,
-    VoidCallback? onTap,
-  ) {
+  Widget animatedButton(String text, VoidCallback? onTap) {
     return AnimatedBuilder(
       animation: _controller,
       builder: (context, child) {
-        final color = Color.lerp(startColor, endColor, _controller.value);
+        final color = Color.lerp(
+          AppColors.primary,
+          AppColors.secondary,
+          _controller.value,
+        );
         return ElevatedButton(
           onPressed: onTap,
           style: ElevatedButton.styleFrom(
             padding: const EdgeInsets.symmetric(vertical: 18),
             shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(30),
+              borderRadius: BorderRadius.circular(16),
             ),
             backgroundColor: color,
           ),
           child: isLoading
-              ? const CircularProgressIndicator(color: Colors.white)
+              ? const SizedBox(
+                  height: 20,
+                  width: 20,
+                  child: CircularProgressIndicator(
+                    color: AppColors.onPrimary,
+                    strokeWidth: 2.5,
+                  ),
+                )
               : Text(
                   text,
                   style: const TextStyle(
                     fontSize: 16,
                     fontWeight: FontWeight.bold,
+                    color: AppColors.onPrimary,
                   ),
                 ),
         );
@@ -117,66 +149,47 @@ class _VerificationScreenState extends State<VerificationScreen>
 
   @override
   Widget build(BuildContext context) {
-    const emeraldGreen = Color(0xFF50C878);
-    const electricBlue = Color(0xFF0077FF);
-
     return Scaffold(
       body: Container(
         width: double.infinity,
-        decoration: const BoxDecoration(
-          gradient: LinearGradient(
-            begin: Alignment.topLeft,
-            end: Alignment.bottomRight,
-            colors: [emeraldGreen, electricBlue],
-          ),
-        ),
+        decoration: const BoxDecoration(gradient: AppColors.secondaryGradient),
         child: Column(
           children: [
-            const SizedBox(height: 50),
+            const SizedBox(height: 60),
 
-            // 🔙 Back Button
-            Align(
-              alignment: Alignment.topLeft,
-              child: IconButton(
-                icon: const Icon(Icons.arrow_back, color: Colors.white),
-                onPressed: () => Navigator.pop(context),
-              ),
-            ),
-
-            const SizedBox(height: 10),
-
-            // Title
             const Text(
               "Your Number",
               style: TextStyle(
-                color: Colors.white,
-                fontSize: 26,
+                color: AppColors.onSurface,
+                fontSize: 30,
                 fontWeight: FontWeight.bold,
               ),
             ),
 
-            const SizedBox(height: 10),
+            const SizedBox(height: 16),
 
             const Padding(
               padding: EdgeInsets.symmetric(horizontal: 30),
               child: Text(
                 "We will send you a verification code",
                 textAlign: TextAlign.center,
-                style: TextStyle(color: Colors.white70),
+                style: TextStyle(
+                  color: AppColors.onSurfaceVariant,
+                  fontSize: 14,
+                ),
               ),
             ),
 
-            const SizedBox(height: 30),
+            const SizedBox(height: 40),
 
-            // 🔥 White Card
             Expanded(
               child: Container(
                 padding: const EdgeInsets.all(25),
                 decoration: const BoxDecoration(
-                  color: Colors.white,
+                  color: AppColors.surfaceContainerLow,
                   borderRadius: BorderRadius.only(
-                    topLeft: Radius.circular(50),
-                    topRight: Radius.circular(50),
+                    topLeft: Radius.circular(36),
+                    topRight: Radius.circular(36),
                   ),
                 ),
                 child: Column(
@@ -185,11 +198,10 @@ class _VerificationScreenState extends State<VerificationScreen>
 
                     Row(
                       children: [
-                        // Country Code
                         Container(
                           padding: const EdgeInsets.symmetric(horizontal: 10),
                           decoration: BoxDecoration(
-                            color: Colors.grey.shade100,
+                            color: AppColors.surfaceContainerHighest,
                             borderRadius: BorderRadius.circular(12),
                           ),
                           child: DropdownButtonHideUnderline(
@@ -210,7 +222,6 @@ class _VerificationScreenState extends State<VerificationScreen>
 
                         const SizedBox(width: 10),
 
-                        // Phone Field
                         Expanded(
                           child: TextField(
                             controller: _phoneController,
@@ -219,9 +230,9 @@ class _VerificationScreenState extends State<VerificationScreen>
                             decoration: InputDecoration(
                               hintText: "Enter phone number",
                               filled: true,
-                              fillColor: Colors.grey.shade100,
+                              fillColor: AppColors.surfaceContainerHighest,
                               border: OutlineInputBorder(
-                                borderRadius: BorderRadius.circular(15),
+                                borderRadius: BorderRadius.circular(12),
                                 borderSide: BorderSide.none,
                               ),
                             ),
@@ -232,13 +243,10 @@ class _VerificationScreenState extends State<VerificationScreen>
 
                     const Spacer(),
 
-                    // 🔥 Animated Button
                     SizedBox(
                       width: double.infinity,
                       child: animatedButton(
                         "Next",
-                        emeraldGreen,
-                        electricBlue,
                         isValid && !isLoading ? sendOTP : null,
                       ),
                     ),

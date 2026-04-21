@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 
 import 'core/services/firestore_service.dart';
 import 'core/theme/app_theme.dart';
-import 'routes/app_routes.dart';
+import 'routes/app_router.dart';
 
 class NexVoltApp extends StatelessWidget {
   const NexVoltApp({
@@ -18,17 +18,17 @@ class NexVoltApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
+    final router = AppRouter.createRouter(
+      repository: repository,
+      startupWarning: startupWarning,
+      enableMaps: enableMaps,
+    );
+
+    return MaterialApp.router(
       debugShowCheckedModeBanner: false,
       title: 'Nexvolt',
       theme: AppTheme.light,
-      onGenerateRoute: (settings) => AppRoutes.onGenerateRoute(
-        settings,
-        repository: repository,
-        startupWarning: startupWarning,
-        enableMaps: enableMaps,
-      ),
-      initialRoute: AppRoutes.home,
+      routerConfig: router,
     );
   }
 }

@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:go_router/go_router.dart';
 
-import '../vechicle/vehicle_details_add.dart';
-import '../vechicle/vechicle_details_show.dart';
+import '../screens/vehicles/vehicle_details_add.dart';
+import '../routes/app_routes.dart';
 import 'login_page.dart';
-import 'verification_screen.dart';
 
 class AuthCheckScreen extends StatefulWidget {
   const AuthCheckScreen({super.key});
@@ -97,7 +97,7 @@ class _AuthCheckScreenState extends State<AuthCheckScreen>
         Navigator.pushReplacement(
           context,
           MaterialPageRoute(
-            builder: (_) => VehicleDetailsScreen(userId: user!.uid),
+            builder: (_) => VehicleDetailsAddScreen(userId: user!.uid),
           ),
         );
         return;
@@ -115,16 +115,13 @@ class _AuthCheckScreenState extends State<AuthCheckScreen>
 
       if (vehicleDoc.docs.isNotEmpty) {
         // ✅ Old user with vehicle → Home
-        Navigator.pushReplacement(
-          context,
-          MaterialPageRoute(builder: (_) => const VechicleDetailsShow()),
-        );
+        context.go(AppRoutes.home);
       } else {
         // ✅ User exists but no vehicle → add vehicle
         Navigator.pushReplacement(
           context,
           MaterialPageRoute(
-            builder: (_) => VehicleDetailsScreen(userId: user!.uid),
+            builder: (_) => VehicleDetailsAddScreen(userId: user!.uid),
           ),
         );
       }
@@ -158,7 +155,7 @@ class _AuthCheckScreenState extends State<AuthCheckScreen>
             // with fade + scale animation
             AnimatedBuilder(
               animation: _logoController,
-              builder: (_, __) => FadeTransition(
+              builder: (context, child) => FadeTransition(
                 opacity: _fadeAnim,
                 child: ScaleTransition(
                   scale: _scaleAnim,
@@ -169,6 +166,22 @@ class _AuthCheckScreenState extends State<AuthCheckScreen>
                         'assets/logo.png', // ✅ your logo
                         height: 110,
                         width: 110,
+                        errorBuilder: (context, error, stackTrace) {
+                          return Container(
+                            width: 110,
+                            height: 110,
+                            decoration: const BoxDecoration(
+                              color: Colors.white24,
+                              shape: BoxShape.circle,
+                            ),
+                            alignment: Alignment.center,
+                            child: const Icon(
+                              Icons.bolt,
+                              color: Colors.white,
+                              size: 56,
+                            ),
+                          );
+                        },
                         // If logo has no background, keep it transparent
                         // If it looks wrong, wrap in a white circle:
                         // see the commented widget below

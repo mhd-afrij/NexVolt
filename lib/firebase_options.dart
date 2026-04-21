@@ -41,46 +41,46 @@ class DefaultFirebaseOptions {
   }
 
   static const FirebaseOptions web = FirebaseOptions(
-    apiKey: 'AIzaSyCUt0D33bGHJXbeauXkmGaRoYlGE1AjQoE',
-    appId: '1:92254794352:web:12b860c32c62fc7f067ab5',
-    messagingSenderId: '92254794352',
-    projectId: 'nexvolt-c7eaf',
-    authDomain: 'nexvolt-c7eaf.firebaseapp.com',
-    storageBucket: 'nexvolt-c7eaf.firebasestorage.app',
+    apiKey: 'AIzaSyDVJiqGOd8qnYzEnuUF1NjhRzeb1TKvc3I',
+    appId: '1:30592806656:web:12b860c32c62fc7f067ab5',
+    messagingSenderId: '30592806656',
+    projectId: 'nexvolt-493704',
+    authDomain: 'nexvolt-493704.firebaseapp.com',
+    storageBucket: 'nexvolt-493704.firebasestorage.app',
   );
 
   static const FirebaseOptions android = FirebaseOptions(
-    apiKey: 'AIzaSyDb-AmTqVsl4AKJfMZU4aEKdau4I9lXpmk',
-    appId: '1:92254794352:android:d8d9f469f646f89d067ab5',
-    messagingSenderId: '92254794352',
-    projectId: 'nexvolt-c7eaf',
-    storageBucket: 'nexvolt-c7eaf.firebasestorage.app',
+    apiKey: 'AIzaSyDVJiqGOd8qnYzEnuUF1NjhRzeb1TKvc3I',
+    appId: '1:30592806656:android:f608f5afcfdb9093144de5',
+    messagingSenderId: '30592806656',
+    projectId: 'nexvolt-493704',
+    storageBucket: 'nexvolt-493704.firebasestorage.app',
   );
 
   static const FirebaseOptions ios = FirebaseOptions(
-    apiKey: 'AIzaSyDYeHYC40a8gKDmaP8h3S8--7Ccwyp0-Oc',
-    appId: '1:92254794352:ios:252f9030451c8916067ab5',
-    messagingSenderId: '92254794352',
-    projectId: 'nexvolt-c7eaf',
-    storageBucket: 'nexvolt-c7eaf.firebasestorage.app',
+    apiKey: 'AIzaSyDVJiqGOd8qnYzEnuUF1NjhRzeb1TKvc3I',
+    appId: '1:30592806656:ios:252f9030451c8916067ab5',
+    messagingSenderId: '30592806656',
+    projectId: 'nexvolt-493704',
+    storageBucket: 'nexvolt-493704.firebasestorage.app',
     iosBundleId: 'com.example.nexvolt',
   );
 
   static const FirebaseOptions macos = FirebaseOptions(
-    apiKey: 'AIzaSyDYeHYC40a8gKDmaP8h3S8--7Ccwyp0-Oc',
-    appId: '1:92254794352:ios:252f9030451c8916067ab5',
-    messagingSenderId: '92254794352',
-    projectId: 'nexvolt-c7eaf',
-    storageBucket: 'nexvolt-c7eaf.firebasestorage.app',
+    apiKey: 'AIzaSyDVJiqGOd8qnYzEnuUF1NjhRzeb1TKvc3I',
+    appId: '1:30592806656:ios:252f9030451c8916067ab5',
+    messagingSenderId: '30592806656',
+    projectId: 'nexvolt-493704',
+    storageBucket: 'nexvolt-493704.firebasestorage.app',
     iosBundleId: 'com.example.nexvolt',
   );
 
   static const FirebaseOptions windows = FirebaseOptions(
-    apiKey: 'AIzaSyCUt0D33bGHJXbeauXkmGaRoYlGE1AjQoE',
-    appId: '1:92254794352:web:5f6e82d56363d52e067ab5',
-    messagingSenderId: '92254794352',
-    projectId: 'nexvolt-c7eaf',
-    authDomain: 'nexvolt-c7eaf.firebaseapp.com',
-    storageBucket: 'nexvolt-c7eaf.firebasestorage.app',
+    apiKey: 'AIzaSyDVJiqGOd8qnYzEnuUF1NjhRzeb1TKvc3I',
+    appId: '1:30592806656:web:5f6e82d56363d52e067ab5',
+    messagingSenderId: '30592806656',
+    projectId: 'nexvolt-493704',
+    authDomain: 'nexvolt-493704.firebaseapp.com',
+    storageBucket: 'nexvolt-493704.firebasestorage.app',
   );
 }

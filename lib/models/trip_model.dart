@@ -1,6 +1,0 @@
-class TripModel {
-  const TripModel({required this.id, required this.destination});
-
-  final String id;
-  final String destination;
-}

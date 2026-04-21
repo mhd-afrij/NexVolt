@@ -1,10 +1,13 @@
 import 'package:flutter/material.dart';
 
 import '../core/services/firestore_service.dart';
-import '../screens/auth/language_screen.dart';
-import '../screens/auth/login_screen.dart';
-import '../screens/auth/otp_screen.dart';
-import '../screens/auth/signup_screen.dart';
+import '../auth/auth_check_screen.dart';
+import '../auth/welcome_screen.dart';
+import '../auth/language_screen.dart';
+import '../auth/login_page.dart';
+import '../auth/register_page.dart';
+import '../auth/verification_screen.dart';
+import '../screens/splash/splash_screen.dart';
 import '../screens/booking/booking_history_screen.dart';
 import '../screens/booking/booking_screen.dart';
 import '../screens/booking/booking_success_screen.dart';
@@ -37,23 +40,26 @@ class StationDetailsArgs {
 class AppRoutes {
   AppRoutes._();
 
+  static const splash = '/';
+  static const welcome = '/welcome';
+  static const authCheck = '/auth-check';
   static const language = '/language';
   static const login = '/login';
   static const signup = '/signup';
   static const otp = '/otp';
   static const home = '/home';
-  static const stationList = '/station-list';
-  static const stationDetails = '/station-details';
+  static const stationList = '/stations';
+  static const stationDetails = '/stations/:id';
   static const reserveSlot = '/reserve-slot';
   static const booking = '/booking';
-  static const bookingHistory = '/booking-history';
+  static const bookingHistory = '/bookings';
   static const payment = '/payment';
   static const bookingSuccess = '/booking-success';
   static const planner = '/planner';
   static const planTrip = '/plan-trip';
   static const tripHistory = '/trip-history';
-  static const qrScanner = '/qr-scanner';
-  static const chargingProgress = '/charging-progress';
+  static const qrScanner = '/scan';
+  static const chargingProgress = '/charging';
   static const chargingComplete = '/charging-complete';
 
   static Route<dynamic> onGenerateRoute(
@@ -63,14 +69,20 @@ class AppRoutes {
     required bool enableMaps,
   }) {
     switch (settings.name) {
+      case splash:
+        return MaterialPageRoute(builder: (_) => const SplashScreen());
+      case welcome:
+        return MaterialPageRoute(builder: (_) => const WelcomeScreen());
+      case authCheck:
+        return MaterialPageRoute(builder: (_) => const AuthCheckScreen());
       case language:
         return MaterialPageRoute(builder: (_) => const LanguageScreen());
       case login:
-        return MaterialPageRoute(builder: (_) => const LoginScreen());
+        return MaterialPageRoute(builder: (_) => const LoginPage());
       case signup:
-        return MaterialPageRoute(builder: (_) => const SignupScreen());
+        return MaterialPageRoute(builder: (_) => const RegisterPage());
       case otp:
-        return MaterialPageRoute(builder: (_) => const OtpScreen());
+        return MaterialPageRoute(builder: (_) => const VerificationScreen());
       case home:
         final initialTab = settings.arguments is int
             ? settings.arguments as int

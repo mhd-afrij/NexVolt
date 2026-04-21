@@ -51,31 +51,51 @@ flutter run -d chrome --dart-define=ENABLE_WEB_MAPS=true
 
 ## Firebase Firestore Setup
 
-This app now uses Cloud Firestore as the primary database. On first run it seeds default data into these collections:
+This app uses Cloud Firestore as the primary database. The collections are created automatically when the app seeds data or writes new documents:
 
 - `profiles` (document: `default`)
+- `users`
 - `vehicles`
 - `stations`
 - `charging_activity`
 
-### 1. Configure Firebase for the app
+### Firebase CLI workflow
+
+1. Install the Firebase CLI:
+
+```bash
+npm install -g firebase-tools
+```
+
+2. Log in and select the project:
+
+```bash
+firebase login
+firebase use nexvolt-c7eaf
+```
+
+3. Deploy Firestore rules and indexes:
+
+```bash
+firebase deploy --only firestore
+```
+
+4. Run the Firestore emulator locally if needed:
+
+```bash
+firebase emulators:start --only firestore
+```
+
+### FlutterFire config
+
+If you need to regenerate platform configuration, run:
 
 ```bash
 dart pub global activate flutterfire_cli
 dart pub global run flutterfire_cli:flutterfire configure
 ```
 
-This command generates platform configuration and links Android/iOS/web to your Firebase project.
-
-### 2. Android specific check
-
-Ensure `android/app/google-services.json` exists (created by FlutterFire configure or downloaded from Firebase console).
-
-### 3. iOS specific check
-
-Ensure `ios/Runner/GoogleService-Info.plist` exists.
-
-### 4. Install packages and run
+### Run the app
 
 ```bash
 flutter pub get

@@ -147,6 +147,44 @@ class _DashboardScreenState extends State<_DashboardScreen> {
   LatLng _currentLatLng = const LatLng(6.9271, 79.8612);
   bool _loadingWeather = true;
 
+  String _resolveWelcomeName(Map<String, dynamic> profile) {
+    final first = (profile['firstName'] as String?)?.trim();
+    final last = (profile['lastName'] as String?)?.trim();
+    final combined = [first, last]
+        .whereType<String>()
+        .where((v) => v.isNotEmpty && v.toLowerCase() != 'null')
+        .join(' ')
+        .trim();
+    if (combined.isNotEmpty) return combined;
+
+    final direct = (profile['name'] as String?)?.trim();
+    if (direct != null && direct.isNotEmpty && direct.toLowerCase() != 'null') {
+      return direct;
+    }
+
+    final displayName = (profile['displayName'] as String?)?.trim();
+    if (displayName != null &&
+        displayName.isNotEmpty &&
+        displayName.toLowerCase() != 'null') {
+      return displayName;
+    }
+
+    final email = (profile['email'] as String?)?.trim();
+    if (email != null && email.contains('@')) {
+      final localPart = email.split('@').first.trim();
+      if (localPart.isNotEmpty && localPart.toLowerCase() != 'null') {
+        return localPart;
+      }
+    }
+
+    final phone = (profile['phone'] as String?)?.trim();
+    if (phone != null && phone.isNotEmpty && phone.toLowerCase() != 'null') {
+      return phone;
+    }
+
+    return 'Driver';
+  }
+
   @override
   void initState() {
     super.initState();
@@ -154,27 +192,38 @@ class _DashboardScreenState extends State<_DashboardScreen> {
   }
 
   Future<void> _loadLocationAndWeather() async {
+    if (!mounted) return;
     setState(() => _loadingWeather = true);
 
-    final location = await LocationService.getCurrentLocation();
-    if (location != null) {
-      _currentLatLng = LatLng(location.latitude, location.longitude);
-      _locationLabel = await LocationService.readableName(
-        location.latitude,
-        location.longitude,
+    try {
+      final location = await LocationService.getCurrentLocation();
+      if (location != null) {
+        _currentLatLng = LatLng(location.latitude, location.longitude);
+        _locationLabel = await LocationService.readableName(
+          location.latitude,
+          location.longitude,
+        );
+      }
+
+      final weather = await _WeatherService.fetchWeather(
+        latitude: _currentLatLng.latitude,
+        longitude: _currentLatLng.longitude,
       );
+
+      if (!mounted) return;
+      setState(() {
+        _weather = weather;
+        _loadingWeather = false;
+      });
+    } catch (e) {
+      debugPrint('Home load failed: $e');
+      if (!mounted) return;
+      setState(() {
+        _weather = null;
+        _locationLabel = 'Location unavailable';
+        _loadingWeather = false;
+      });
     }
-
-    final weather = await _WeatherService.fetchWeather(
-      latitude: _currentLatLng.latitude,
-      longitude: _currentLatLng.longitude,
-    );
-
-    if (!mounted) return;
-    setState(() {
-      _weather = weather;
-      _loadingWeather = false;
-    });
   }
 
   Color _batteryColor(int value) {
@@ -228,7 +277,7 @@ class _DashboardScreenState extends State<_DashboardScreen> {
             stream: widget.repository.watchProfile(),
             builder: (context, snapshot) {
               final profile = snapshot.data ?? const <String, dynamic>{};
-              final name = profile['name'] as String? ?? 'Driver';
+              final name = _resolveWelcomeName(profile);
               return Container(
                 padding: const EdgeInsets.all(16),
                 decoration: BoxDecoration(

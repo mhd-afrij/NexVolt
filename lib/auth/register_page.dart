@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:flutter_application_2/features/auth/verification_screen.dart';
+import '../core/constants/app_colors.dart';
+import 'auth_check_screen.dart';
 import 'login_page.dart';
 
 class RegisterPage extends StatefulWidget {
@@ -27,9 +28,6 @@ class _RegisterPageState extends State<RegisterPage>
   bool _obscurePass = true;
   bool _obscureConfirm = true;
 
-  static const emeraldGreen = Color(0xFF50C878);
-  static const electricBlue = Color(0xFF0077FF);
-
   @override
   void initState() {
     super.initState();
@@ -51,23 +49,21 @@ class _RegisterPageState extends State<RegisterPage>
     super.dispose();
   }
 
-  // 🔥 Animated Button — same style as LoginPage
-  Widget animatedButton(
-    String text,
-    Color startColor,
-    Color endColor,
-    VoidCallback onTap,
-  ) {
+  Widget animatedButton(String text, VoidCallback onTap) {
     return AnimatedBuilder(
       animation: _controller,
       builder: (context, child) {
-        final color = Color.lerp(startColor, endColor, _controller.value);
+        final color = Color.lerp(
+          AppColors.primary,
+          AppColors.secondary,
+          _controller.value,
+        );
         return ElevatedButton(
           onPressed: _isLoading ? null : onTap,
           style: ElevatedButton.styleFrom(
             padding: const EdgeInsets.symmetric(vertical: 18),
             shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(30),
+              borderRadius: BorderRadius.circular(16),
             ),
             backgroundColor: color,
           ),
@@ -76,42 +72,29 @@ class _RegisterPageState extends State<RegisterPage>
                   height: 20,
                   width: 20,
                   child: CircularProgressIndicator(
-                    color: Colors.white,
+                    color: AppColors.onPrimary,
                     strokeWidth: 2.5,
                   ),
                 )
-              : Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Text(
-                      text,
-                      style: const TextStyle(
-                        fontSize: 16,
-                        fontWeight: FontWeight.bold,
-                        color: Colors.white,
-                      ),
-                    ),
-                    const SizedBox(width: 8),
-                    const Icon(
-                      Icons.arrow_forward,
-                      color: Colors.white,
-                      size: 18,
-                    ),
-                  ],
+              : Text(
+                  text,
+                  style: const TextStyle(
+                    fontSize: 16,
+                    fontWeight: FontWeight.bold,
+                    color: AppColors.onPrimary,
+                  ),
                 ),
         );
       },
     );
   }
 
-  // ✅ Firebase Register with email/password
   Future<void> _handleRegister() async {
     if (!_formKey.currentState!.validate()) return;
 
     setState(() => _isLoading = true);
 
     try {
-      // 1️⃣ Create Firebase Auth account
       final credential = await FirebaseAuth.instance
           .createUserWithEmailAndPassword(
             email: emailController.text.trim(),
@@ -120,7 +103,6 @@ class _RegisterPageState extends State<RegisterPage>
 
       final user = credential.user!;
 
-      // 2️⃣ Save user details to Firestore users/{uid}
       await FirebaseFirestore.instance.collection('users').doc(user.uid).set({
         'uid': user.uid,
         'firstName': firstNameController.text.trim(),
@@ -134,10 +116,9 @@ class _RegisterPageState extends State<RegisterPage>
 
       if (!mounted) return;
 
-      // 3️⃣ Registration done → go to Vehicle Details
       Navigator.pushAndRemoveUntil(
         context,
-        MaterialPageRoute(builder: (_) => VerificationScreen()),
+        MaterialPageRoute(builder: (_) => const AuthCheckScreen()),
         (route) => false,
       );
     } on FirebaseAuthException catch (e) {
@@ -158,14 +139,21 @@ class _RegisterPageState extends State<RegisterPage>
         case 'network-request-failed':
           message = 'No internet connection.';
           break;
+        case 'operation-not-allowed':
+          message =
+              'Email/Password sign-in is disabled for this Firebase project.';
+          break;
         default:
           message = 'Registration failed (${e.code}). Try again.';
       }
 
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text(message),
-          backgroundColor: Colors.red.shade600,
+          content: Text(
+            message,
+            style: const TextStyle(color: AppColors.onErrorContainer),
+          ),
+          backgroundColor: AppColors.errorContainer,
           duration: const Duration(seconds: 4),
         ),
       );
@@ -173,8 +161,11 @@ class _RegisterPageState extends State<RegisterPage>
       if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text('Unexpected error: $e'),
-          backgroundColor: Colors.red.shade600,
+          content: Text(
+            'Unexpected error: $e',
+            style: const TextStyle(color: AppColors.onErrorContainer),
+          ),
+          backgroundColor: AppColors.errorContainer,
         ),
       );
     } finally {
@@ -182,7 +173,6 @@ class _RegisterPageState extends State<RegisterPage>
     }
   }
 
-  // Reusable text field — same style as LoginPage
   Widget _buildField({
     required TextEditingController controller,
     required String hint,
@@ -205,31 +195,29 @@ class _RegisterPageState extends State<RegisterPage>
       decoration: InputDecoration(
         hintText: hint,
         counterText: '',
-        prefixIcon: Icon(icon, color: Colors.grey),
+        prefixIcon: Icon(icon, color: AppColors.onSurfaceVariant),
         suffixIcon: showObscure != null
             ? IconButton(
                 icon: Icon(
                   showObscure
                       ? Icons.visibility_off_outlined
                       : Icons.visibility_outlined,
-                  color: Colors.grey,
+                  color: AppColors.onSurfaceVariant,
                 ),
                 onPressed: onToggle,
               )
             : null,
-        filled: true,
-        fillColor: Colors.grey.shade100,
         border: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(15),
+          borderRadius: BorderRadius.circular(12),
           borderSide: BorderSide.none,
         ),
         errorBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(15),
-          borderSide: const BorderSide(color: Colors.red, width: 1),
+          borderRadius: BorderRadius.circular(12),
+          borderSide: const BorderSide(color: AppColors.error, width: 1),
         ),
         focusedErrorBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(15),
-          borderSide: const BorderSide(color: Colors.red, width: 1.5),
+          borderRadius: BorderRadius.circular(12),
+          borderSide: const BorderSide(color: AppColors.error, width: 1.5),
         ),
       ),
     );
@@ -240,54 +228,35 @@ class _RegisterPageState extends State<RegisterPage>
     return Scaffold(
       body: Container(
         width: double.infinity,
-        decoration: const BoxDecoration(
-          gradient: LinearGradient(
-            colors: [emeraldGreen, electricBlue],
-            begin: Alignment.topLeft,
-            end: Alignment.bottomRight,
-          ),
-        ),
+        decoration: const BoxDecoration(gradient: AppColors.secondaryGradient),
         child: Column(
           children: [
-            const SizedBox(height: 50),
-
-            // Back button
-            Align(
-              alignment: Alignment.topLeft,
-              child: IconButton(
-                icon: const Icon(Icons.arrow_back, color: Colors.white),
-                onPressed: () => Navigator.pop(context),
-              ),
-            ),
+            const SizedBox(height: 60),
 
             const Text(
               'Create Account',
               style: TextStyle(
-                color: Colors.white,
-                fontSize: 28,
+                color: AppColors.onSurface,
+                fontSize: 30,
                 fontWeight: FontWeight.bold,
               ),
             ),
             const SizedBox(height: 4),
             const Text(
               'Fill your details to get started',
-              style: TextStyle(color: Colors.white70, fontSize: 14),
+              style: TextStyle(color: AppColors.onSurfaceVariant, fontSize: 14),
             ),
 
-            const SizedBox(height: 24),
+            const SizedBox(height: 40),
 
-            // 🤍 White Card — same style as LoginPage
             Expanded(
               child: Container(
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 25,
-                  vertical: 20,
-                ),
+                padding: const EdgeInsets.all(25),
                 decoration: const BoxDecoration(
-                  color: Colors.white,
+                  color: AppColors.surfaceContainerLow,
                   borderRadius: BorderRadius.only(
-                    topLeft: Radius.circular(50),
-                    topRight: Radius.circular(50),
+                    topLeft: Radius.circular(36),
+                    topRight: Radius.circular(36),
                   ),
                 ),
                 child: Form(
@@ -295,9 +264,8 @@ class _RegisterPageState extends State<RegisterPage>
                   child: SingleChildScrollView(
                     child: Column(
                       children: [
-                        const SizedBox(height: 10),
+                        const SizedBox(height: 20),
 
-                        // First & Last Name row
                         Row(
                           children: [
                             Expanded(
@@ -322,9 +290,8 @@ class _RegisterPageState extends State<RegisterPage>
                           ],
                         ),
 
-                        const SizedBox(height: 14),
+                        const SizedBox(height: 15),
 
-                        // Email
                         _buildField(
                           controller: emailController,
                           hint: 'Email Address',
@@ -341,9 +308,8 @@ class _RegisterPageState extends State<RegisterPage>
                           },
                         ),
 
-                        const SizedBox(height: 14),
+                        const SizedBox(height: 15),
 
-                        // Password
                         _buildField(
                           controller: passwordController,
                           hint: 'Password',
@@ -363,9 +329,8 @@ class _RegisterPageState extends State<RegisterPage>
                           },
                         ),
 
-                        const SizedBox(height: 14),
+                        const SizedBox(height: 15),
 
-                        // Confirm Password
                         _buildField(
                           controller: confirmPassController,
                           hint: 'Confirm Password',
@@ -383,29 +348,25 @@ class _RegisterPageState extends State<RegisterPage>
                           },
                         ),
 
-                        const SizedBox(height: 24),
+                        const SizedBox(height: 20),
 
-                        // 🔥 Register Button
                         SizedBox(
                           width: double.infinity,
                           child: animatedButton(
                             'Create Account',
-                            emeraldGreen,
-                            electricBlue,
                             _handleRegister,
                           ),
                         ),
 
                         const SizedBox(height: 16),
 
-                        // Already have account → Login
                         Row(
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: [
                             const Text(
                               'Already have an account? ',
                               style: TextStyle(
-                                color: Colors.grey,
+                                color: AppColors.onSurfaceVariant,
                                 fontSize: 14,
                               ),
                             ),
@@ -419,7 +380,7 @@ class _RegisterPageState extends State<RegisterPage>
                               child: const Text(
                                 'Login',
                                 style: TextStyle(
-                                  color: electricBlue,
+                                  color: AppColors.secondary,
                                   fontSize: 14,
                                   fontWeight: FontWeight.bold,
                                 ),

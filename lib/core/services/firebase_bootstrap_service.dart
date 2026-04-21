@@ -21,7 +21,7 @@ class FirebaseBootstrapService {
       return const FirebaseBootstrapResult(isEnabled: true);
     } catch (_) {
       final warning = kIsWeb
-          ? 'Firebase is not configured for web. Using local fallback data.'
+          ? 'Firebase is not configured for web. Check hosting Firebase config.'
           : 'Firebase is not configured. Add platform config files and retry.';
       return FirebaseBootstrapResult(isEnabled: false, warning: warning);
     }

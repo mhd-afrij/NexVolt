@@ -1,7 +1,8 @@
 import 'dart:async';
 import 'dart:ui';
 import 'package:flutter/material.dart';
-import 'package:flutter_application_2/features/auth/login_page.dart';
+import 'package:go_router/go_router.dart';
+import '../routes/app_routes.dart';
 
 class WelcomeScreen extends StatefulWidget {
   const WelcomeScreen({super.key});
@@ -15,6 +16,7 @@ class _WelcomeScreenState extends State<WelcomeScreen>
   final PageController _pageController = PageController();
   int _currentPage = 0;
   late AnimationController _buttonController;
+  Timer? _sliderTimer;
 
   final List<String> images = [
     "assets/register1.png",
@@ -27,7 +29,11 @@ class _WelcomeScreenState extends State<WelcomeScreen>
     super.initState();
 
     // Slider timer
-    Timer.periodic(const Duration(seconds: 3), (Timer timer) {
+    _sliderTimer = Timer.periodic(const Duration(seconds: 3), (Timer timer) {
+      if (!mounted || !_pageController.hasClients) {
+        return;
+      }
+
       if (_currentPage < images.length - 1) {
         _currentPage++;
       } else {
@@ -40,7 +46,9 @@ class _WelcomeScreenState extends State<WelcomeScreen>
         curve: Curves.easeInOut,
       );
 
-      setState(() {});
+      if (mounted) {
+        setState(() {});
+      }
     });
 
     // Button shimmer controller
@@ -52,6 +60,7 @@ class _WelcomeScreenState extends State<WelcomeScreen>
 
   @override
   void dispose() {
+    _sliderTimer?.cancel();
     _pageController.dispose();
     _buttonController.dispose();
     super.dispose();
@@ -90,7 +99,7 @@ class _WelcomeScreenState extends State<WelcomeScreen>
               gradient: gradient,
               boxShadow: [
                 BoxShadow(
-                  color: Colors.black.withOpacity(0.25),
+                  color: Colors.black.withValues(alpha: 0.25),
                   blurRadius: 8,
                   offset: const Offset(0, 4),
                 ),
@@ -172,8 +181,10 @@ class _WelcomeScreenState extends State<WelcomeScreen>
                     vertical: 40,
                   ),
                   decoration: BoxDecoration(
-                    color: Colors.white.withOpacity(0.2),
-                    border: Border.all(color: Colors.white.withOpacity(0.3)),
+                    color: Colors.white.withValues(alpha: 0.2),
+                    border: Border.all(
+                      color: Colors.white.withValues(alpha: 0.3),
+                    ),
                   ),
                   child: Column(
                     mainAxisSize: MainAxisSize.min,
@@ -201,12 +212,7 @@ class _WelcomeScreenState extends State<WelcomeScreen>
 
                       // Premium shimmering button
                       shimmeringButton("Get Started", () {
-                        Navigator.pushReplacement(
-                          context,
-                          MaterialPageRoute(
-                            builder: (context) => const LoginPage(),
-                          ),
-                        );
+                        context.go(AppRoutes.language);
                       }),
 
                       const SizedBox(height: 20),

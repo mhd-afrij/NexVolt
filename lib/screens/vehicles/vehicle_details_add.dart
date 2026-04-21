@@ -1,17 +1,19 @@
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'vechicle_details_show.dart';
+import 'package:go_router/go_router.dart';
+import '../../routes/app_routes.dart';
+import '../../core/constants/app_colors.dart';
 
-class VehicleDetailsScreen extends StatefulWidget {
+class VehicleDetailsAddScreen extends StatefulWidget {
   final String userId;
 
-  const VehicleDetailsScreen({super.key, required this.userId});
+  const VehicleDetailsAddScreen({super.key, required this.userId});
 
   @override
-  State<VehicleDetailsScreen> createState() => _VehicleDetailsScreenState();
+  State<VehicleDetailsAddScreen> createState() => _VehicleDetailsScreenState();
 }
 
-class _VehicleDetailsScreenState extends State<VehicleDetailsScreen>
+class _VehicleDetailsScreenState extends State<VehicleDetailsAddScreen>
     with SingleTickerProviderStateMixin {
   int _currentStep = 0;
 
@@ -46,6 +48,13 @@ class _VehicleDetailsScreenState extends State<VehicleDetailsScreen>
     )..repeat(reverse: true);
   }
 
+  @override
+  void dispose() {
+    _controller.dispose();
+    _pageController.dispose();
+    super.dispose();
+  }
+
   void nextStep() {
     if (_currentStep < 2) {
       setState(() => _currentStep++);
@@ -72,15 +81,13 @@ class _VehicleDetailsScreenState extends State<VehicleDetailsScreen>
           "createdAt": DateTime.now(),
         });
 
+    if (!mounted) return;
+
     ScaffoldMessenger.of(context).showSnackBar(
       const SnackBar(content: Text("Vehicle saved successfully!")),
     );
 
-    Navigator.pushAndRemoveUntil(
-      context,
-      MaterialPageRoute(builder: (_) => const VechicleDetailsShow()),
-      (route) => false,
-    );
+    context.go(AppRoutes.home);
   }
 
   // 🔥 Animated Button
@@ -89,8 +96,8 @@ class _VehicleDetailsScreenState extends State<VehicleDetailsScreen>
       animation: _controller,
       builder: (context, child) {
         final color = Color.lerp(
-          const Color(0xFF50C878),
-          const Color(0xFF0077FF),
+          AppColors.primary,
+          AppColors.secondary,
           _controller.value,
         );
 
@@ -99,13 +106,17 @@ class _VehicleDetailsScreenState extends State<VehicleDetailsScreen>
           style: ElevatedButton.styleFrom(
             padding: const EdgeInsets.symmetric(vertical: 18),
             shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(30),
+              borderRadius: BorderRadius.circular(16),
             ),
             backgroundColor: color,
           ),
           child: Text(
             _currentStep < 2 ? "Next" : "Save Vehicle",
-            style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+            style: const TextStyle(
+              fontSize: 16,
+              fontWeight: FontWeight.bold,
+              color: AppColors.onPrimary,
+            ),
           ),
         );
       },
@@ -122,12 +133,15 @@ class _VehicleDetailsScreenState extends State<VehicleDetailsScreen>
       margin: const EdgeInsets.only(bottom: 15),
       padding: const EdgeInsets.symmetric(horizontal: 12),
       decoration: BoxDecoration(
-        color: Colors.grey.shade100,
-        borderRadius: BorderRadius.circular(15),
+        color: AppColors.surfaceContainerHighest,
+        borderRadius: BorderRadius.circular(12),
       ),
       child: DropdownButtonFormField<String>(
-        value: value,
-        hint: Text(hint),
+        initialValue: value,
+        hint: Text(
+          hint,
+          style: const TextStyle(color: AppColors.onSurfaceVariant),
+        ),
         decoration: const InputDecoration(border: InputBorder.none),
         items: items
             .map((e) => DropdownMenuItem(value: e, child: Text(e)))
@@ -203,43 +217,33 @@ class _VehicleDetailsScreenState extends State<VehicleDetailsScreen>
 
   @override
   Widget build(BuildContext context) {
-    const emeraldGreen = Color(0xFF50C878);
-    const electricBlue = Color(0xFF0077FF);
-
     return Scaffold(
       body: Container(
-        decoration: const BoxDecoration(
-          gradient: LinearGradient(
-            colors: [emeraldGreen, electricBlue],
-            begin: Alignment.topLeft,
-            end: Alignment.bottomRight,
-          ),
-        ),
+        width: double.infinity,
+        decoration: const BoxDecoration(gradient: AppColors.secondaryGradient),
         child: Column(
           children: [
-            const SizedBox(height: 50),
+            const SizedBox(height: 60),
 
-            // Title
             const Text(
               "Vehicle Details",
               style: TextStyle(
-                color: Colors.white,
-                fontSize: 26,
+                color: AppColors.onSurface,
+                fontSize: 30,
                 fontWeight: FontWeight.bold,
               ),
             ),
 
-            const SizedBox(height: 20),
+            const SizedBox(height: 40),
 
-            // White Card
             Expanded(
               child: Container(
-                padding: const EdgeInsets.all(20),
+                padding: const EdgeInsets.all(25),
                 decoration: const BoxDecoration(
-                  color: Colors.white,
+                  color: AppColors.surfaceContainerLow,
                   borderRadius: BorderRadius.only(
-                    topLeft: Radius.circular(50),
-                    topRight: Radius.circular(50),
+                    topLeft: Radius.circular(36),
+                    topRight: Radius.circular(36),
                   ),
                 ),
                 child: Column(
@@ -253,7 +257,6 @@ class _VehicleDetailsScreenState extends State<VehicleDetailsScreen>
                     ),
                     const SizedBox(height: 10),
 
-                    // Button
                     SizedBox(
                       width: double.infinity,
                       child: animatedButton(nextStep),

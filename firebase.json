@@ -1,1 +1,34 @@
-{"flutter":{"platforms":{"android":{"default":{"projectId":"nexvolt-c7eaf","appId":"1:92254794352:android:d8d9f469f646f89d067ab5","fileOutput":"android/app/google-services.json"}},"dart":{"lib/firebase_options.dart":{"projectId":"nexvolt-c7eaf","configurations":{"android":"1:92254794352:android:d8d9f469f646f89d067ab5","ios":"1:92254794352:ios:252f9030451c8916067ab5","macos":"1:92254794352:ios:252f9030451c8916067ab5","web":"1:92254794352:web:12b860c32c62fc7f067ab5","windows":"1:92254794352:web:5f6e82d56363d52e067ab5"}}}}}}
+{
+  "flutter": {
+    "platforms": {
+      "android": {
+        "default": {
+          "projectId": "nexvolt-493704",
+          "appId": "1:30592806656:android:f608f5afcfdb9093144de5",
+          "fileOutput": "android/app/google-services.json"
+        }
+      },
+      "dart": {
+        "lib/firebase_options.dart": {
+          "projectId": "nexvolt-493704",
+          "configurations": {
+            "android": "1:30592806656:android:f608f5afcfdb9093144de5",
+            "ios": "1:30592806656:ios:252f9030451c8916067ab5",
+            "macos": "1:30592806656:ios:252f9030451c8916067ab5",
+            "web": "1:30592806656:web:12b860c32c62fc7f067ab5",
+            "windows": "1:30592806656:web:5f6e82d56363d52e067ab5"
+          }
+        }
+      }
+    }
+  },
+  "firestore": {
+    "rules": "firestore.rules",
+    "indexes": "firestore.indexes.json"
+  },
+  "emulators": {
+    "firestore": {
+      "port": 8080
+    }
+  }
+}

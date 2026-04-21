@@ -18,7 +18,7 @@
 
   <meta charset="UTF-8">
   <meta content="IE=Edge" http-equiv="X-UA-Compatible">
-  <meta name="description" content="A new Flutter project.">
+  <meta name="description" content="NexVolt - Power Your Journey">
 
   <!-- iOS meta tags & icons -->
   <meta name="mobile-web-app-capable" content="yes">
@@ -32,12 +32,53 @@
   <title>Nexvolt</title>
   <link rel="manifest" href="manifest.json">
   <script>
+    // Suppress Firebase reCAPTCHA warning
+    const originalError = console.error;
+    console.error = function(...args) {
+      if (args[0] && typeof args[0] === 'string' && args[0].includes('reCAPTCHA')) {
+        return;
+      }
+      originalError.apply(console, args);
+    };
+  </script>
+  <script>
+    // Deep linking support for Flutter web
+    (function() {
+      // Handle browser back/forward navigation
+      window.addEventListener('popstate', function(event) {
+        // Flutter will handle this via GoRouter
+      });
+
+      // Store the initial URL for GoRouter to handle
+      window.addEventListener('flutter-first-frame', function() {
+        // Flutter is ready
+      });
+    })();
+  </script>
+  <script>
     // Called by Google Maps JS when auth or key restrictions fail.
     window.gm_authFailure = function () {
       console.error('Google Maps authentication failed. Check key and referrer restrictions.');
     };
+
+    window.MAPS_API_KEY = 'AIzaSyC1brZwoJymp4Nku_fxuKWRrKHn9_mTIIs';
+
+    (function loadGoogleMapsIfConfigured() {
+      if (!window.MAPS_API_KEY) {
+        console.warn('Google Maps JS not loaded because MAPS_API_KEY is empty.');
+        return;
+      }
+
+      const script = document.createElement('script');
+      script.async = true;
+      script.defer = true;
+      script.src =
+        'https://maps.googleapis.com/maps/api/js?key=' +
+        encodeURIComponent(window.MAPS_API_KEY) +
+        '&loading=async&libraries=places';
+      document.head.appendChild(script);
+    })();
   </script>
-  <script async defer src="https://maps.googleapis.com/maps/api/js?key=AIzaSyCUZ20Dxxucf15zhSlhmstzZ1KgkzGc08M&loading=async&libraries=places"></script>
 </head>
 <body>
   <script src="flutter_bootstrap.js" async></script>

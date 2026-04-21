@@ -41,9 +41,6 @@ class _BootstrapAppState extends State<_BootstrapApp> {
     await repository.seedDefaults().timeout(const Duration(seconds: 8));
 
     final warningParts = <String>[];
-    if (kIsWeb) {
-      warningParts.add('Running with local data on web localhost.');
-    }
     if (firebase.warning != null) {
       warningParts.add(firebase.warning!);
     }
@@ -68,10 +65,10 @@ class _BootstrapAppState extends State<_BootstrapApp> {
 
         final state = snapshot.data;
         if (state == null) {
-          final fallbackRepo = AppRepository();
+          final fallbackRepo = AppRepository(useRemoteDb: false);
           return NexVoltApp(
             repository: fallbackRepo,
-            startupWarning: 'Startup failed. Running with local data.',
+            startupWarning: 'Startup failed. Please check Firebase setup.',
             enableMaps: !kIsWeb || _enableWebMaps,
           );
         }

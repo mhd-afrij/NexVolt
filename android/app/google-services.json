@@ -1,13 +1,13 @@
 {
   "project_info": {
-    "project_number": "92254794352",
-    "project_id": "nexvolt-c7eaf",
-    "storage_bucket": "nexvolt-c7eaf.firebasestorage.app"
+    "project_number": "30592806656",
+    "project_id": "nexvolt-493704",
+    "storage_bucket": "nexvolt-493704.firebasestorage.app"
   },
   "client": [
     {
       "client_info": {
-        "mobilesdk_app_id": "1:92254794352:android:d8d9f469f646f89d067ab5",
+        "mobilesdk_app_id": "1:30592806656:android:f608f5afcfdb9093144de5",
         "android_client_info": {
           "package_name": "com.example.nexvolt"
         }
@@ -15,7 +15,7 @@
       "oauth_client": [],
       "api_key": [
         {
-          "current_key": ""
+          "current_key": "AIzaSyDVJiqGOd8qnYzEnuUF1NjhRzeb1TKvc3I"
         }
       ],
       "services": {

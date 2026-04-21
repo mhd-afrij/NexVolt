@@ -292,8 +292,8 @@ class AppStrings {
 
   String otpResendIn(int seconds) => _t(
     'Resend in ${seconds}s',
-    'තත්පර ${seconds}කින් නැවත යවන්න',
-    '${seconds} வினாடிகளில் மீண்டும் அனுப்பு',
+    'තත්පර $secondsකින් නැවත යවන්න',
+    '$seconds வினாடிகளில் மீண்டும் அனுப்பு',
   );
 
   String get otpVerifyButton =>

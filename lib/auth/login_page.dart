@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import '../../core/app_strings.dart';
+import '../core/app_strings.dart';
+import '../core/constants/app_colors.dart';
 import 'auth_check_screen.dart';
 import 'register_page.dart';
 
@@ -19,9 +20,6 @@ class _LoginPageState extends State<LoginPage>
   late AnimationController _controller;
   bool _isLoading = false;
   bool _obscurePassword = true;
-
-  static const emeraldGreen = Color(0xFF50C878);
-  static const electricBlue = Color(0xFF0077FF);
 
   @override
   void initState() {
@@ -44,13 +42,17 @@ class _LoginPageState extends State<LoginPage>
     return AnimatedBuilder(
       animation: _controller,
       builder: (context, child) {
-        final color = Color.lerp(emeraldGreen, electricBlue, _controller.value);
+        final color = Color.lerp(
+          AppColors.primary,
+          AppColors.secondary,
+          _controller.value,
+        );
         return ElevatedButton(
           onPressed: _isLoading ? null : onTap,
           style: ElevatedButton.styleFrom(
             padding: const EdgeInsets.symmetric(vertical: 18),
             shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(30),
+              borderRadius: BorderRadius.circular(16),
             ),
             backgroundColor: color,
           ),
@@ -59,7 +61,7 @@ class _LoginPageState extends State<LoginPage>
                   height: 20,
                   width: 20,
                   child: CircularProgressIndicator(
-                    color: Colors.white,
+                    color: AppColors.onPrimary,
                     strokeWidth: 2.5,
                   ),
                 )
@@ -68,7 +70,7 @@ class _LoginPageState extends State<LoginPage>
                   style: const TextStyle(
                     fontSize: 16,
                     fontWeight: FontWeight.bold,
-                    color: Colors.white,
+                    color: AppColors.onPrimary,
                   ),
                 ),
         );
@@ -126,13 +128,17 @@ class _LoginPageState extends State<LoginPage>
         case 'network-request-failed':
           message = s.loginErrorNetwork;
           break;
+        case 'operation-not-allowed':
+          message =
+              'Email/Password sign-in is disabled for this Firebase project.';
+          break;
         default:
           message = s.errorUnexpected;
       }
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text(message),
-          backgroundColor: Colors.red.shade600,
+          backgroundColor: AppColors.error,
           duration: const Duration(seconds: 4),
         ),
       );
@@ -146,7 +152,7 @@ class _LoginPageState extends State<LoginPage>
     final resetCtrl = TextEditingController();
     showDialog(
       context: context,
-      builder: (_) => AlertDialog(
+      builder: (dialogContext) => AlertDialog(
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
         title: Text(
           s.loginResetTitle,
@@ -158,7 +164,7 @@ class _LoginPageState extends State<LoginPage>
           decoration: InputDecoration(
             hintText: s.loginResetHint,
             filled: true,
-            fillColor: Colors.grey.shade100,
+            fillColor: AppColors.surfaceContainerHighest,
             border: OutlineInputBorder(
               borderRadius: BorderRadius.circular(12),
               borderSide: BorderSide.none,
@@ -167,37 +173,47 @@ class _LoginPageState extends State<LoginPage>
         ),
         actions: [
           TextButton(
-            onPressed: () => Navigator.pop(context),
+            onPressed: () => Navigator.of(dialogContext).pop(),
             child: Text(s.loginResetCancel),
           ),
           ElevatedButton(
             style: ElevatedButton.styleFrom(
-              backgroundColor: electricBlue,
+              backgroundColor: AppColors.secondary,
+              foregroundColor: AppColors.onSecondary,
               shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(12),
               ),
             ),
             onPressed: () async {
               if (resetCtrl.text.trim().isNotEmpty) {
-                await FirebaseAuth.instance.sendPasswordResetEmail(
-                  email: resetCtrl.text.trim(),
-                );
-                if (context.mounted) {
-                  Navigator.pop(context);
+                try {
+                  await FirebaseAuth.instance.sendPasswordResetEmail(
+                    email: resetCtrl.text.trim(),
+                  );
+
+                  if (!mounted || !dialogContext.mounted) return;
+                  Navigator.of(dialogContext).pop();
+
+                  if (!mounted) return;
                   ScaffoldMessenger.of(
                     context,
                   ).showSnackBar(SnackBar(content: Text(s.loginResetSuccess)));
+                } on FirebaseAuthException catch (e) {
+                  if (!mounted) return;
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(content: Text(e.message ?? s.errorUnexpected)),
+                  );
                 }
               }
             },
             child: Text(
               s.loginResetSend,
-              style: const TextStyle(color: Colors.white),
+              style: const TextStyle(color: AppColors.onSecondary),
             ),
           ),
         ],
       ),
-    );
+    ).whenComplete(resetCtrl.dispose);
   }
 
   @override
@@ -207,20 +223,14 @@ class _LoginPageState extends State<LoginPage>
     return Scaffold(
       body: Container(
         width: double.infinity,
-        decoration: const BoxDecoration(
-          gradient: LinearGradient(
-            colors: [emeraldGreen, electricBlue],
-            begin: Alignment.topLeft,
-            end: Alignment.bottomRight,
-          ),
-        ),
+        decoration: const BoxDecoration(gradient: AppColors.secondaryGradient),
         child: Column(
           children: [
             const SizedBox(height: 60),
             Text(
               s.loginTitle,
               style: const TextStyle(
-                color: Colors.white,
+                color: AppColors.onSurface,
                 fontSize: 30,
                 fontWeight: FontWeight.bold,
               ),
@@ -231,10 +241,10 @@ class _LoginPageState extends State<LoginPage>
               child: Container(
                 padding: const EdgeInsets.all(25),
                 decoration: const BoxDecoration(
-                  color: Colors.white,
+                  color: AppColors.surfaceContainerLow,
                   borderRadius: BorderRadius.only(
-                    topLeft: Radius.circular(50),
-                    topRight: Radius.circular(50),
+                    topLeft: Radius.circular(36),
+                    topRight: Radius.circular(36),
                   ),
                 ),
                 child: Column(
@@ -249,13 +259,7 @@ class _LoginPageState extends State<LoginPage>
                         hintText: s.loginEmail,
                         prefixIcon: const Icon(
                           Icons.email_outlined,
-                          color: Colors.grey,
-                        ),
-                        filled: true,
-                        fillColor: Colors.grey.shade100,
-                        border: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(15),
-                          borderSide: BorderSide.none,
+                          color: AppColors.onSurfaceVariant,
                         ),
                       ),
                     ),
@@ -271,24 +275,18 @@ class _LoginPageState extends State<LoginPage>
                         hintText: s.loginPassword,
                         prefixIcon: const Icon(
                           Icons.lock_outline,
-                          color: Colors.grey,
+                          color: AppColors.onSurfaceVariant,
                         ),
                         suffixIcon: IconButton(
                           icon: Icon(
                             _obscurePassword
                                 ? Icons.visibility_off_outlined
                                 : Icons.visibility_outlined,
-                            color: Colors.grey,
+                            color: AppColors.onSurfaceVariant,
                           ),
                           onPressed: () => setState(
                             () => _obscurePassword = !_obscurePassword,
                           ),
-                        ),
-                        filled: true,
-                        fillColor: Colors.grey.shade100,
-                        border: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(15),
-                          borderSide: BorderSide.none,
                         ),
                       ),
                     ),
@@ -308,7 +306,7 @@ class _LoginPageState extends State<LoginPage>
                         Text(
                           s.loginNewUser,
                           style: const TextStyle(
-                            color: Colors.grey,
+                            color: AppColors.onSurfaceVariant,
                             fontSize: 14,
                           ),
                         ),
@@ -322,7 +320,7 @@ class _LoginPageState extends State<LoginPage>
                           child: Text(
                             s.loginRegisterLink,
                             style: const TextStyle(
-                              color: electricBlue,
+                              color: AppColors.secondary,
                               fontSize: 14,
                               fontWeight: FontWeight.bold,
                             ),
@@ -335,7 +333,9 @@ class _LoginPageState extends State<LoginPage>
                       onPressed: _showForgotPassword,
                       child: Text(
                         s.loginForgotPassword,
-                        style: const TextStyle(color: Colors.grey),
+                        style: const TextStyle(
+                          color: AppColors.onSurfaceVariant,
+                        ),
                       ),
                     ),
                   ],

@@ -37,8 +37,6 @@ class _MapScreenState extends State<MapScreen> {
   Marker? _searchMarker;
   String? _searchedAddress;
   bool _isSearching = false;
-  bool _showSuggestions = false;
-  List<AutocompleteResult> _suggestions = [];
   List<StationModel> _stations = const [];
   Set<Marker> _stationMarkers = <Marker>{};
 
@@ -72,84 +70,6 @@ class _MapScreenState extends State<MapScreen> {
     super.dispose();
   }
 
-  Future<void> _onSearchChanged(String query) async {
-    if (query.isEmpty) {
-      setState(() {
-        _suggestions = [];
-        _showSuggestions = false;
-      });
-      return;
-    }
-
-    final response = await LocationService.getAutocomplete(query);
-    if (!mounted) return;
-    setState(() {
-      _suggestions = response.results;
-      _showSuggestions = _suggestions.isNotEmpty;
-    });
-  }
-
-  Future<void> _selectSuggestion(AutocompleteResult suggestion) async {
-    _searchController.text = suggestion.displayName;
-    setState(() {
-      _showSuggestions = false;
-      _suggestions = [];
-    });
-
-    await _searchAndMovePlaceId(suggestion.placeId);
-  }
-
-  Future<void> _searchAndMovePlaceId(String placeId) async {
-    if (placeId.isEmpty || _isSearching) return;
-
-    setState(() => _isSearching = true);
-
-    final details = await LocationService.getPlaceDetails(
-      placeId: placeId,
-      features: 'details',
-    );
-
-    if (!mounted) return;
-
-    if (details == null) {
-      setState(() => _isSearching = false);
-      return;
-    }
-
-    final feature = (details.raw['features'] as List<dynamic>?)?.firstOrNull;
-    final featureProps = feature is Map<String, dynamic>
-        ? feature['properties'] as Map<String, dynamic>?
-        : null;
-
-    final lat = (featureProps?['lat'] as num?)?.toDouble();
-    final lon = (featureProps?['lon'] as num?)?.toDouble();
-    final formatted = featureProps?['formatted'] as String? ?? '';
-
-    if (lat == null || lon == null) {
-      setState(() => _isSearching = false);
-      return;
-    }
-
-    final target = LatLng(lat, lon);
-
-    if (!mounted) return;
-    setState(() {
-      _currentPosition = target;
-      _searchedAddress = formatted.isNotEmpty ? formatted : 'Selected location';
-      _searchMarker = Marker(
-        markerId: const MarkerId('searched-location'),
-        position: target,
-        infoWindow: InfoWindow(
-          title: 'Selected location',
-          snippet: _searchedAddress,
-        ),
-      );
-      _isSearching = false;
-    });
-
-    await _controller?.animateCamera(CameraUpdate.newLatLngZoom(target, 15));
-  }
-
   Future<void> _searchAndMove(String rawQuery) async {
     final query = rawQuery.trim();
     if (query.isEmpty || _isSearching) return;
@@ -167,23 +87,7 @@ class _MapScreenState extends State<MapScreen> {
       return;
     }
 
-    var label = geocoded.formattedAddress;
-    final placeId = geocoded.placeId;
-    if (placeId != null && placeId.isNotEmpty) {
-      final details = await LocationService.getPlaceDetails(
-        placeId: placeId,
-        features: 'details',
-      );
-
-      final feature = (details?.raw['features'] as List<dynamic>?)?.firstOrNull;
-      final properties = feature is Map<String, dynamic>
-          ? feature['properties'] as Map<String, dynamic>?
-          : null;
-      final detailedAddress = properties?['formatted'] as String?;
-      if (detailedAddress != null && detailedAddress.isNotEmpty) {
-        label = detailedAddress;
-      }
-    }
+    final label = geocoded.formattedAddress;
 
     final target = LatLng(geocoded.latitude, geocoded.longitude);
     _searchController.text = query;
@@ -232,9 +136,7 @@ class _MapScreenState extends State<MapScreen> {
   }
 
   void _watchStations() {
-    _stationSubscription = widget.repository.watchFavoriteStations().listen((
-      stations,
-    ) {
+    _stationSubscription = widget.repository.watchStations().listen((stations) {
       _stations = stations;
       final markers = stations
           .map(
@@ -331,7 +233,6 @@ class _MapScreenState extends State<MapScreen> {
                       child: TextField(
                         controller: _searchController,
                         textInputAction: TextInputAction.search,
-                        onChanged: _onSearchChanged,
                         onSubmitted: _searchAndMove,
                         style: const TextStyle(
                           color: AppColors.textPrimary,
@@ -402,52 +303,6 @@ class _MapScreenState extends State<MapScreen> {
                       tooltip: 'Filters',
                     ),
                   ),
-                  if (_showSuggestions && _suggestions.isNotEmpty)
-                    Container(
-                      margin: const EdgeInsets.only(top: 6),
-                      constraints: const BoxConstraints(maxHeight: 200),
-                      decoration: BoxDecoration(
-                        color: AppColors.cardBackgroundElevated.withValues(
-                          alpha: 0.9,
-                        ),
-                        borderRadius: BorderRadius.circular(14),
-                        border: Border.all(
-                          color: AppColors.accent.withValues(alpha: 0.3),
-                        ),
-                      ),
-                      child: ListView.builder(
-                        shrinkWrap: true,
-                        itemCount: _suggestions.length,
-                        itemBuilder: (context, index) {
-                          final suggestion = _suggestions[index];
-                          return ListTile(
-                            dense: true,
-                            leading: const Icon(
-                              Icons.location_on_outlined,
-                              size: 18,
-                              color: AppColors.accent,
-                            ),
-                            title: Text(
-                              suggestion.displayName,
-                              style: const TextStyle(
-                                color: AppColors.textPrimary,
-                                fontSize: 13,
-                              ),
-                            ),
-                            subtitle: Text(
-                              suggestion.formatted,
-                              maxLines: 1,
-                              overflow: TextOverflow.ellipsis,
-                              style: const TextStyle(
-                                color: AppColors.textSecondary,
-                                fontSize: 11,
-                              ),
-                            ),
-                            onTap: () => _selectSuggestion(suggestion),
-                          );
-                        },
-                      ),
-                    ),
                 ],
               ),
               const SizedBox(height: 14),
@@ -485,11 +340,13 @@ class _MapScreenState extends State<MapScreen> {
                                 markers: {
                                   ..._stationMarkers,
                                   myMarker,
-                                  if (_searchMarker != null) _searchMarker!,
+                                  ...?(_searchMarker == null
+                                      ? null
+                                      : {_searchMarker!}),
                                 },
+                                style: _darkMapStyle,
                                 onMapCreated: (c) {
                                   _controller = c;
-                                  c.setMapStyle(_darkMapStyle);
                                 },
                               )
                             : Container(
