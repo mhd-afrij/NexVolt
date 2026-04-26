@@ -1,12 +1,22 @@
+import 'package:go_router/go_router.dart';
 import 'package:flutter/material.dart';
 import 'package:url_launcher/url_launcher.dart';
 
+import '../../core/config/app_config.dart';
 import '../../core/constants/app_colors.dart';
+import '../../core/services/firestore_service.dart';
 import '../../models/station_model.dart';
 import '../../routes/app_routes.dart';
 
 class StationDetailsScreen extends StatefulWidget {
-  const StationDetailsScreen({super.key, this.station, this.mainTabIndex = 0});
+  const StationDetailsScreen({
+    super.key,
+    required this.repository,
+    this.station,
+    this.mainTabIndex = 0,
+  });
+
+  final AppRepository repository;
 
   final StationModel? station;
   final int mainTabIndex;
@@ -34,10 +44,154 @@ class _StationDetailsScreenState extends State<StationDetailsScreen> {
 
   int selectedTab = 0;
   bool isFavorite = false;
+  bool _isAdmin = false;
+  bool _checkingAdmin = true;
+  StationModel? _activeStation;
+
+  @override
+  void initState() {
+    super.initState();
+    _activeStation = widget.station;
+    _loadAdminState();
+  }
+
+  Future<void> _loadAdminState() async {
+    final isAdmin = await widget.repository.isCurrentUserAdmin();
+    if (!mounted) return;
+    setState(() {
+      _isAdmin = isAdmin;
+      _checkingAdmin = false;
+    });
+  }
+
+  Future<void> _showAvailabilityEditor() async {
+    final station = _activeStation ?? widget.station;
+    if (station == null) return;
+
+    final availableController = TextEditingController(
+      text: station.availableSlots?.toString() ?? '',
+    );
+    final totalController = TextEditingController(
+      text: station.totalSlots?.toString() ?? '',
+    );
+    final statusController = TextEditingController(
+      text: station.status ?? (station.isAvailable ? 'active' : 'inactive'),
+    );
+    final formKey = GlobalKey<FormState>();
+
+    try {
+      final shouldSave = await showDialog<bool>(
+        context: context,
+        builder: (dialogContext) {
+          return AlertDialog(
+            backgroundColor: surface,
+            title: const Text('Update Availability'),
+            content: Form(
+              key: formKey,
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  TextFormField(
+                    controller: availableController,
+                    keyboardType: TextInputType.number,
+                    decoration: const InputDecoration(
+                      labelText: 'Available slots',
+                    ),
+                    validator: (value) {
+                      if (int.tryParse(value ?? '') == null) {
+                        return 'Enter a valid number';
+                      }
+                      return null;
+                    },
+                  ),
+                  TextFormField(
+                    controller: totalController,
+                    keyboardType: TextInputType.number,
+                    decoration: const InputDecoration(labelText: 'Total slots'),
+                    validator: (value) {
+                      if (int.tryParse(value ?? '') == null) {
+                        return 'Enter a valid number';
+                      }
+                      return null;
+                    },
+                  ),
+                  TextFormField(
+                    controller: statusController,
+                    decoration: const InputDecoration(labelText: 'Status'),
+                    validator: (value) {
+                      if ((value ?? '').trim().isEmpty) {
+                        return 'Status is required';
+                      }
+                      return null;
+                    },
+                  ),
+                ],
+              ),
+            ),
+            actions: [
+              TextButton(
+                onPressed: () => Navigator.of(dialogContext).pop(false),
+                child: const Text('Cancel'),
+              ),
+              FilledButton(
+                onPressed: () {
+                  if (formKey.currentState?.validate() ?? false) {
+                    Navigator.of(dialogContext).pop(true);
+                  }
+                },
+                child: const Text('Save'),
+              ),
+            ],
+          );
+        },
+      );
+
+      if (shouldSave != true) {
+        return;
+      }
+
+      final availableSlots = int.parse(availableController.text.trim());
+      final totalSlots = int.parse(totalController.text.trim());
+      if (availableSlots > totalSlots) {
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+              content: Text('Available slots cannot exceed total slots.'),
+            ),
+          );
+        }
+        return;
+      }
+
+      await widget.repository.updateStationAvailability(
+        stationId: station.id,
+        availableSlots: availableSlots,
+        totalSlots: totalSlots,
+        status: statusController.text.trim(),
+      );
+
+      if (!mounted) return;
+      setState(() {
+        _activeStation = station.copyWith(
+          availableSlots: availableSlots,
+          totalSlots: totalSlots,
+          status: statusController.text.trim(),
+        );
+      });
+
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(const SnackBar(content: Text('Availability updated.')));
+    } finally {
+      availableController.dispose();
+      totalController.dispose();
+      statusController.dispose();
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
-    final station = widget.station;
+    final station = _activeStation ?? widget.station;
     final stationName = station?.name ?? 'Tesla Station';
     final stationAddress = station?.address ?? 'Hanover St.24';
     final distance =
@@ -90,6 +244,31 @@ class _StationDetailsScreenState extends State<StationDetailsScreen> {
                 ],
               ),
             ),
+            if (_checkingAdmin)
+              const Padding(
+                padding: EdgeInsets.fromLTRB(16, 0, 16, 10),
+                child: LinearProgressIndicator(minHeight: 2),
+              )
+            else if (_isAdmin && station != null)
+              Padding(
+                padding: const EdgeInsets.fromLTRB(16, 0, 16, 10),
+                child: SizedBox(
+                  width: double.infinity,
+                  child: OutlinedButton.icon(
+                    style: OutlinedButton.styleFrom(
+                      foregroundColor: primary,
+                      side: const BorderSide(color: primary),
+                      padding: const EdgeInsets.symmetric(vertical: 14),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(14),
+                      ),
+                    ),
+                    onPressed: _showAvailabilityEditor,
+                    icon: const Icon(Icons.admin_panel_settings_outlined),
+                    label: const Text('Admin: Update Availability'),
+                  ),
+                ),
+              ),
             Container(
               margin: const EdgeInsets.fromLTRB(14, 0, 14, 14),
               decoration: BoxDecoration(
@@ -215,20 +394,23 @@ class _StationDetailsScreenState extends State<StationDetailsScreen> {
                           child: Stack(
                             fit: StackFit.expand,
                             children: [
-                              Image.network(
-                                'https://images.unsplash.com/photo-1617788138017-80ad40651399?auto=format&fit=crop&w=1200&q=80',
-                                fit: BoxFit.cover,
-                                errorBuilder: (context, error, stackTrace) {
-                                  return Container(
-                                    color: surface,
-                                    alignment: Alignment.center,
-                                    child: const Icon(
-                                      Icons.image_not_supported_outlined,
-                                      color: textGrey,
-                                      size: 36,
-                                    ),
-                                  );
-                                },
+                              Container(
+                                decoration: const BoxDecoration(
+                                  gradient: LinearGradient(
+                                    begin: Alignment.topLeft,
+                                    end: Alignment.bottomRight,
+                                    colors: [
+                                      AppColors.cardBackgroundElevated,
+                                      AppColors.backgroundBottom,
+                                    ],
+                                  ),
+                                ),
+                                alignment: Alignment.center,
+                                child: const Icon(
+                                  Icons.ev_station,
+                                  color: textGrey,
+                                  size: 48,
+                                ),
                               ),
                               const DecoratedBox(
                                 decoration: BoxDecoration(
@@ -354,6 +536,16 @@ class _StationDetailsScreenState extends State<StationDetailsScreen> {
                                 ),
                               ],
                             ),
+                            if (station != null && station.hasAvailability) ...[
+                              const SizedBox(height: 10),
+                              Text(
+                                station.availabilityLabel,
+                                style: const TextStyle(
+                                  color: secondary,
+                                  fontWeight: FontWeight.w700,
+                                ),
+                              ),
+                            ],
                           ],
                         ),
                       ),
@@ -454,13 +646,14 @@ class _StationDetailsScreenState extends State<StationDetailsScreen> {
 
     final lat = station.latitude;
     final lng = station.longitude;
-    final name = Uri.encodeComponent(station.name);
+    final googleMapsUri = AppConfig.googleMapsSearchUri(
+      latitude: lat,
+      longitude: lng,
+      placeName: station.name,
+    );
 
-    final googleMapsUrl =
-        'https://www.google.com/maps/search/?api=1&query=$lat,$lng&query_place_id=$name';
-
-    if (await canLaunchUrl(Uri.parse(googleMapsUrl))) {
-      await launchUrl(Uri.parse(googleMapsUrl));
+    if (await canLaunchUrl(googleMapsUri)) {
+      await launchUrl(googleMapsUri);
     } else {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
@@ -471,20 +664,14 @@ class _StationDetailsScreenState extends State<StationDetailsScreen> {
   }
 
   void _navigateToNearbyStations() {
-    Navigator.pushNamed(
-      context,
+    context.push(
       AppRoutes.stationList,
-      arguments: StationListArgs(mainTabIndex: widget.mainTabIndex),
+      extra: StationListArgs(mainTabIndex: widget.mainTabIndex),
     );
   }
 
   void _goToMainTab(int index) {
-    Navigator.pushNamedAndRemoveUntil(
-      context,
-      AppRoutes.home,
-      (route) => false,
-      arguments: index,
-    );
+    context.go(AppRoutes.home, extra: index);
   }
 }
 

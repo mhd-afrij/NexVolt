@@ -1,8 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:firebase_auth/firebase_auth.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:go_router/go_router.dart';
 
+import '../core/services/firebase_auth_service.dart';
 import '../screens/vehicles/vehicle_details_add.dart';
 import '../routes/app_routes.dart';
 import 'login_page.dart';
@@ -52,20 +51,11 @@ class _AuthCheckScreenState extends State<AuthCheckScreen>
   }
 
   Future<void> _checkUser() async {
-    User? user;
-
-    try {
-      user = await FirebaseAuth.instance.authStateChanges().first.timeout(
-        const Duration(seconds: 5),
-      );
-    } catch (_) {
-      user = FirebaseAuth.instance.currentUser;
-    }
+    final userId = FirebaseAuthService.currentUserId;
 
     if (!mounted) return;
 
-    // ❌ NOT LOGGED IN → LoginPage
-    if (user == null) {
+    if (userId == null) {
       Navigator.pushReplacement(
         context,
         MaterialPageRoute(builder: (_) => const LoginPage()),
@@ -73,64 +63,18 @@ class _AuthCheckScreenState extends State<AuthCheckScreen>
       return;
     }
 
-    try {
-      final userDoc = await FirebaseFirestore.instance
-          .collection('users')
-          .doc(user.uid)
-          .get();
+    final hasVehicle = await FirebaseAuthService.hasVehicle();
 
-      if (!mounted) return;
+    if (!mounted) return;
 
-      // No Firestore doc → create one for email users
-      if (!userDoc.exists) {
-        await FirebaseFirestore.instance.collection('users').doc(user.uid).set({
-          'uid': user.uid,
-          'email': user.email ?? '',
-          'phone': user.phoneNumber ?? '',
-          'role': 'user',
-          'loginMethod': 'email',
-          'createdAt': Timestamp.now(),
-        });
-
-        if (!mounted) return;
-
-        Navigator.pushReplacement(
-          context,
-          MaterialPageRoute(
-            builder: (_) => VehicleDetailsAddScreen(userId: user!.uid),
-          ),
-        );
-        return;
-      }
-
-      // Check vehicle
-      final vehicleDoc = await FirebaseFirestore.instance
-          .collection('users')
-          .doc(user.uid)
-          .collection('vehicles')
-          .limit(1)
-          .get();
-
-      if (!mounted) return;
-
-      if (vehicleDoc.docs.isNotEmpty) {
-        // ✅ Old user with vehicle → Home
-        context.go(AppRoutes.home);
-      } else {
-        // ✅ User exists but no vehicle → add vehicle
-        Navigator.pushReplacement(
-          context,
-          MaterialPageRoute(
-            builder: (_) => VehicleDetailsAddScreen(userId: user!.uid),
-          ),
-        );
-      }
-    } catch (e) {
-      debugPrint('🔥 AuthCheck error: $e');
-      if (!mounted) return;
+    if (hasVehicle) {
+      context.go(AppRoutes.home);
+    } else {
       Navigator.pushReplacement(
         context,
-        MaterialPageRoute(builder: (_) => const LoginPage()),
+        MaterialPageRoute(
+          builder: (_) => VehicleDetailsAddScreen(userId: userId),
+        ),
       );
     }
   }

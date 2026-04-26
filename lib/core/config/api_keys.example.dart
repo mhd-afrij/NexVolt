@@ -1,13 +1,10 @@
-// API Keys Configuration Template
-//
-// Copy this file to `api_keys.dart` and fill in your actual API keys.
-// The `api_keys.dart` file is gitignored to keep secrets safe.
+// API keys are now resolved via --dart-define and AppConfig.
+// This file is a reference for required build-time values.
 
 class ApiKeys {
-  /// Google Maps API Key
-  /// Get your key at: https://console.cloud.google.com/
-  static const String googleMapsApiKey = 'YOUR_GOOGLE_MAPS_API_KEY_HERE';
+  /// Pass in builds: --dart-define=MAPS_API_KEY=your_key
+  static const String googleMapsApiKey = '';
 
-  /// Weather API key used by weather lookups.
-  static const String weatherApiKey = 'YOUR_WEATHER_API_KEY_HERE';
+  /// Optional. Pass: --dart-define=WEATHER_API_KEY=your_key
+  static const String weatherApiKey = '';
 }

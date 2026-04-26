@@ -51,14 +51,6 @@ flutter run -d chrome --dart-define=ENABLE_WEB_MAPS=true
 
 ## Firebase Firestore Setup
 
-This app uses Cloud Firestore as the primary database. The collections are created automatically when the app seeds data or writes new documents:
-
-- `profiles` (document: `default`)
-- `users`
-- `vehicles`
-- `stations`
-- `charging_activity`
-
 ### Firebase CLI workflow
 
 1. Install the Firebase CLI:

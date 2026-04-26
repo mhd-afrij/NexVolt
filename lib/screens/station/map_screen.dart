@@ -1,5 +1,6 @@
 import 'dart:async';
 
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
@@ -28,8 +29,13 @@ class MapScreen extends StatefulWidget {
 
 class _MapScreenState extends State<MapScreen> {
   static const _anim300 = Duration(milliseconds: 300);
+  static const ClusterManagerId _stationClusterManagerId = ClusterManagerId(
+    'ev-station-clusters',
+  );
 
+  final bool _useClusterManagers = !kIsWeb;
   GoogleMapController? _controller;
+  ClusterManager? _stationClusterManager;
   final TextEditingController _searchController = TextEditingController();
   StreamSubscription<Position>? _locationSubscription;
   StreamSubscription<List<StationModel>>? _stationSubscription;
@@ -57,6 +63,21 @@ class _MapScreenState extends State<MapScreen> {
   void initState() {
     super.initState();
     _currentPosition = widget.initialLocation;
+    if (_useClusterManagers) {
+      _stationClusterManager = ClusterManager(
+        clusterManagerId: _stationClusterManagerId,
+        onClusterTap: (cluster) async {
+          final controller = _controller;
+          if (controller == null) {
+            return;
+          }
+
+          await controller.animateCamera(
+            CameraUpdate.newLatLngBounds(cluster.bounds, 80),
+          );
+        },
+      );
+    }
     _trackLiveLocation();
     _watchStations();
   }
@@ -138,19 +159,34 @@ class _MapScreenState extends State<MapScreen> {
   void _watchStations() {
     _stationSubscription = widget.repository.watchStations().listen((stations) {
       _stations = stations;
-      final markers = stations
-          .map(
-            (s) => Marker(
-              markerId: MarkerId(s.id),
-              position: LatLng(s.latitude, s.longitude),
-              infoWindow: InfoWindow(title: s.name, snippet: s.address),
-            ),
-          )
-          .toSet();
+      final markers = stations.map(_buildStationMarker).toSet();
 
       if (!mounted) return;
       setState(() => _stationMarkers = markers);
     });
+  }
+
+  Marker _buildStationMarker(StationModel station) {
+    final markerColor = station.isAvailable
+        ? BitmapDescriptor.hueGreen
+        : BitmapDescriptor.hueRed;
+
+    return Marker(
+      markerId: MarkerId(station.id),
+      position: LatLng(station.latitude, station.longitude),
+      infoWindow: InfoWindow(
+        title: station.name,
+        snippet: station.availabilityLabel,
+      ),
+      onTap: () => _controller?.animateCamera(
+        CameraUpdate.newLatLngZoom(
+          LatLng(station.latitude, station.longitude),
+          15,
+        ),
+      ),
+      icon: BitmapDescriptor.defaultMarkerWithHue(markerColor),
+      clusterManagerId: _useClusterManagers ? _stationClusterManagerId : null,
+    );
   }
 
   StationModel? get _highlightStation {
@@ -344,6 +380,11 @@ class _MapScreenState extends State<MapScreen> {
                                       ? null
                                       : {_searchMarker!}),
                                 },
+                                clusterManagers:
+                                    _useClusterManagers &&
+                                        _stationClusterManager != null
+                                    ? {_stationClusterManager!}
+                                    : <ClusterManager>{},
                                 style: _darkMapStyle,
                                 onMapCreated: (c) {
                                   _controller = c;
@@ -509,12 +550,22 @@ class _MapScreenState extends State<MapScreen> {
                                 ),
                               ),
                             ],
+                            if (station.hasAvailability) ...[
+                              const SizedBox(height: 6),
+                              Text(
+                                station.availabilityLabel,
+                                style: const TextStyle(
+                                  color: AppColors.textSecondary,
+                                  fontSize: 11,
+                                ),
+                              ),
+                            ],
                             const SizedBox(height: 12),
                             Row(
                               children: const [
                                 _InfoChip(
                                   icon: Icons.event_available,
-                                  label: '3 slots available',
+                                  label: 'Live availability',
                                   color: AppColors.primary,
                                 ),
                                 SizedBox(width: 8),

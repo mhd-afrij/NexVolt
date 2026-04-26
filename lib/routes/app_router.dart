@@ -100,7 +100,10 @@ class AppRouter {
           builder: (context, state) {
             final tabIndex =
                 int.tryParse(state.uri.queryParameters['tab'] ?? '0') ?? 0;
-            return StationListScreen(mainTabIndex: tabIndex);
+            return StationListScreen(
+              repository: repository,
+              mainTabIndex: tabIndex,
+            );
           },
         ),
         GoRoute(
@@ -109,7 +112,11 @@ class AppRouter {
           builder: (context, state) {
             final tabIndex =
                 int.tryParse(state.uri.queryParameters['tab'] ?? '0') ?? 0;
-            return StationDetailsScreen(station: null, mainTabIndex: tabIndex);
+            return StationDetailsScreen(
+              repository: repository,
+              station: null,
+              mainTabIndex: tabIndex,
+            );
           },
         ),
         GoRoute(

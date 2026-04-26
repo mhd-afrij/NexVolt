@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:go_router/go_router.dart';
+
+import '../../core/services/firestore_service.dart';
 import '../../routes/app_routes.dart';
 import '../../core/constants/app_colors.dart';
+import '../../core/services/firebase_auth_service.dart';
 
 class VehicleDetailsAddScreen extends StatefulWidget {
   final String userId;
@@ -17,27 +19,93 @@ class _VehicleDetailsScreenState extends State<VehicleDetailsAddScreen>
     with SingleTickerProviderStateMixin {
   int _currentStep = 0;
 
-  String? vehicleType, company, model, battery, connector;
+  String? selectedVehicle, vehicleType, batteryVoltage, connectorType;
 
   late AnimationController _controller;
   final PageController _pageController = PageController();
 
-  final List<String> vehicleTypes = ["Two Wheel", "Three Wheel", "Four Wheel"];
-  final Map<String, List<String>> companies = {
-    "Two Wheel": ["Honda", "Yamaha"],
-    "Three Wheel": ["Bajaj", "Piaggio"],
-    "Four Wheel": ["BMW", "Tesla"],
-  };
-  final Map<String, List<String>> models = {
-    "Honda": ["CBR-100", "CB-150"],
-    "Yamaha": ["R15", "FZ"],
-    "Bajaj": ["RE 205", "RE 250"],
-    "Piaggio": ["Ape 50", "Ape 200"],
-    "BMW": ["X3", "X5"],
-    "Tesla": ["Model S", "Model X"],
-  };
-  final List<String> batteries = ["20 kW", "50 kW", "100 kW"];
-  final List<String> connectors = ["Type 1", "Type 2", "Type 3"];
+  final List<Map<String, String>> vehicleSpecs = const [
+    {
+      'vehicle': 'Tesla Model 3',
+      'type': 'Car',
+      'battery_voltage': '350-400V',
+      'connector': 'Type 2 / CCS',
+    },
+    {
+      'vehicle': 'Nissan Leaf',
+      'type': 'Car',
+      'battery_voltage': '350V',
+      'connector': 'CHAdeMO',
+    },
+    {
+      'vehicle': 'Hyundai Kona Electric',
+      'type': 'Car',
+      'battery_voltage': '356V',
+      'connector': 'Type 2 / CCS',
+    },
+    {
+      'vehicle': 'MG ZS EV',
+      'type': 'Car',
+      'battery_voltage': '350V',
+      'connector': 'Type 2 / CCS',
+    },
+    {
+      'vehicle': 'BYD Atto 3',
+      'type': 'Car',
+      'battery_voltage': '400V',
+      'connector': 'Type 2 / CCS',
+    },
+    {
+      'vehicle': 'Tata Nexon EV',
+      'type': 'Car',
+      'battery_voltage': '300-400V',
+      'connector': 'Type 2 / CCS',
+    },
+    {
+      'vehicle': 'Ather 450X',
+      'type': 'Bike',
+      'battery_voltage': '51V',
+      'connector': 'Proprietary',
+    },
+    {
+      'vehicle': 'Ola S1 Pro',
+      'type': 'Bike',
+      'battery_voltage': '48V',
+      'connector': 'Proprietary',
+    },
+    {
+      'vehicle': 'TVS iQube',
+      'type': 'Bike',
+      'battery_voltage': '48V',
+      'connector': 'Portable Charger',
+    },
+  ];
+
+  List<String> get vehicleNames =>
+      vehicleSpecs.map((spec) => spec['vehicle']!).toSet().toList()..sort();
+
+  List<String> get vehicleTypes =>
+      vehicleSpecs.map((spec) => spec['type']!).toSet().toList()..sort();
+
+  List<String> get batteryVoltages {
+    final values = vehicleSpecs
+        .where((spec) => vehicleType == null || spec['type'] == vehicleType)
+        .map((spec) => spec['battery_voltage']!)
+        .toSet()
+        .toList();
+    values.sort();
+    return values;
+  }
+
+  List<String> get connectorTypes {
+    final values = vehicleSpecs
+        .where((spec) => vehicleType == null || spec['type'] == vehicleType)
+        .map((spec) => spec['connector']!)
+        .toSet()
+        .toList();
+    values.sort();
+    return values;
+  }
 
   @override
   void initState() {
@@ -56,7 +124,24 @@ class _VehicleDetailsScreenState extends State<VehicleDetailsAddScreen>
   }
 
   void nextStep() {
-    if (_currentStep < 2) {
+    if (_currentStep == 0 && vehicleType == null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Please select a vehicle type.')),
+      );
+      return;
+    }
+
+    if (_currentStep == 1 &&
+        (batteryVoltage == null || connectorType == null)) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Please select battery voltage and connector type.'),
+        ),
+      );
+      return;
+    }
+
+    if (_currentStep < 1) {
       setState(() => _currentStep++);
       _pageController.nextPage(
         duration: const Duration(milliseconds: 300),
@@ -68,18 +153,33 @@ class _VehicleDetailsScreenState extends State<VehicleDetailsAddScreen>
   }
 
   Future<void> saveVehicle() async {
-    await FirebaseFirestore.instance
-        .collection("users")
-        .doc(widget.userId)
-        .collection("vehicles")
-        .add({
-          "vehicleType": vehicleType,
-          "company": company,
-          "model": model,
-          "battery": battery,
-          "connector": connector,
-          "createdAt": DateTime.now(),
-        });
+    final activeUserId = FirebaseAuthService.currentUserId ?? widget.userId;
+    final modelName = selectedVehicle ?? 'Unknown Vehicle';
+    final plate = vehicleType?.trim().isNotEmpty == true ? vehicleType! : '-';
+    final voltageMatch = RegExp(r'\d+').firstMatch(batteryVoltage ?? '');
+    final batteryPercent = int.tryParse(voltageMatch?.group(0) ?? '') ?? 0;
+
+    try {
+      final repository = AppRepository(useRemoteDb: true);
+      await repository.addVehicle(
+        userId: activeUserId,
+        model: modelName,
+        plate: plate.isEmpty ? '-' : plate,
+        batteryPercent: batteryPercent,
+        vehicle: selectedVehicle,
+        vehicleType: vehicleType,
+        battery: batteryVoltage,
+        connector: connectorType,
+        batteryVoltage: batteryVoltage,
+        connectorType: connectorType,
+      );
+    } catch (_) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Failed to save vehicle to Firestore.')),
+      );
+      return;
+    }
 
     if (!mounted) return;
 
@@ -111,7 +211,7 @@ class _VehicleDetailsScreenState extends State<VehicleDetailsAddScreen>
             backgroundColor: color,
           ),
           child: Text(
-            _currentStep < 2 ? "Next" : "Save Vehicle",
+            _currentStep < 1 ? "Next" : "Save Vehicle",
             style: const TextStyle(
               fontSize: 16,
               fontWeight: FontWeight.bold,
@@ -127,8 +227,10 @@ class _VehicleDetailsScreenState extends State<VehicleDetailsAddScreen>
     String hint,
     String? value,
     List<String> items,
-    Function(String?) onChanged,
-  ) {
+    Function(String?) onChanged, {
+    bool enabled = true,
+    String? disabledHint,
+  }) {
     return Container(
       margin: const EdgeInsets.only(bottom: 15),
       padding: const EdgeInsets.symmetric(horizontal: 12),
@@ -139,14 +241,14 @@ class _VehicleDetailsScreenState extends State<VehicleDetailsAddScreen>
       child: DropdownButtonFormField<String>(
         initialValue: value,
         hint: Text(
-          hint,
+          enabled ? hint : (disabledHint ?? hint),
           style: const TextStyle(color: AppColors.onSurfaceVariant),
         ),
         decoration: const InputDecoration(border: InputBorder.none),
         items: items
             .map((e) => DropdownMenuItem(value: e, child: Text(e)))
             .toList(),
-        onChanged: onChanged,
+        onChanged: enabled ? onChanged : null,
       ),
     );
   }
@@ -154,24 +256,34 @@ class _VehicleDetailsScreenState extends State<VehicleDetailsAddScreen>
   Widget step1() {
     return Column(
       children: [
+        customDropdown("Vehicle", selectedVehicle, vehicleNames, (val) {
+          setState(() {
+            selectedVehicle = val;
+            if (val == null) {
+              return;
+            }
+
+            final selectedSpec = vehicleSpecs.firstWhere(
+              (spec) => spec['vehicle'] == val,
+            );
+            vehicleType = selectedSpec['type'];
+            batteryVoltage = selectedSpec['battery_voltage'];
+            connectorType = selectedSpec['connector'];
+          });
+        }),
         customDropdown("Vehicle Type", vehicleType, vehicleTypes, (val) {
           setState(() {
             vehicleType = val;
-            company = null;
-            model = null;
+            selectedVehicle = null;
+
+            if (!batteryVoltages.contains(batteryVoltage)) {
+              batteryVoltage = null;
+            }
+            if (!connectorTypes.contains(connectorType)) {
+              connectorType = null;
+            }
           });
         }),
-        if (vehicleType != null)
-          customDropdown("Company", company, companies[vehicleType!]!, (val) {
-            setState(() {
-              company = val;
-              model = null;
-            });
-          }),
-        if (company != null)
-          customDropdown("Model", model, models[company!]!, (val) {
-            setState(() => model = val);
-          }),
       ],
     );
   }
@@ -180,37 +292,21 @@ class _VehicleDetailsScreenState extends State<VehicleDetailsAddScreen>
     return Column(
       children: [
         customDropdown(
-          "Battery",
-          battery,
-          batteries,
-          (val) => setState(() => battery = val),
+          "Battery Voltage",
+          batteryVoltage,
+          batteryVoltages,
+          (val) => setState(() => batteryVoltage = val),
+          enabled: vehicleType != null,
+          disabledHint: 'Select vehicle type first',
         ),
         customDropdown(
-          "Connector",
-          connector,
-          connectors,
-          (val) => setState(() => connector = val),
+          "Connector Type",
+          connectorType,
+          connectorTypes,
+          (val) => setState(() => connectorType = val),
+          enabled: vehicleType != null,
+          disabledHint: 'Select vehicle type first',
         ),
-      ],
-    );
-  }
-
-  Widget step3() {
-    return Column(
-      mainAxisAlignment: MainAxisAlignment.center,
-      children: [
-        const Icon(Icons.check_circle, color: Colors.green, size: 80),
-        const SizedBox(height: 20),
-        const Text(
-          "Vehicle Saved!",
-          style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
-        ),
-        const SizedBox(height: 20),
-        Text("Type: $vehicleType"),
-        Text("Company: $company"),
-        Text("Model: $model"),
-        Text("Battery: $battery"),
-        Text("Connector: $connector"),
       ],
     );
   }
@@ -252,7 +348,7 @@ class _VehicleDetailsScreenState extends State<VehicleDetailsAddScreen>
                       child: PageView(
                         controller: _pageController,
                         physics: const NeverScrollableScrollPhysics(),
-                        children: [step1(), step2(), step3()],
+                        children: [step1(), step2()],
                       ),
                     ),
                     const SizedBox(height: 10),

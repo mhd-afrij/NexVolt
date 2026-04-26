@@ -1,3 +1,5 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
+
 class ChargingSessionModel {
   ChargingSessionModel({
     required this.stationName,
@@ -14,6 +16,8 @@ class ChargingSessionModel {
     DateTime parsed;
     if (raw is DateTime) {
       parsed = raw;
+    } else if (raw is Timestamp) {
+      parsed = raw.toDate();
     } else if (raw is String) {
       parsed = DateTime.tryParse(raw) ?? DateTime.now();
     } else {

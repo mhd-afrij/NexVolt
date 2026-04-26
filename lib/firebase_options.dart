@@ -25,7 +25,10 @@ class DefaultFirebaseOptions {
       case TargetPlatform.iOS:
         return ios;
       case TargetPlatform.macOS:
-        return macos;
+        throw UnsupportedError(
+          'DefaultFirebaseOptions have not been configured for macos - '
+          'you can reconfigure this by running the FlutterFire CLI again.',
+        );
       case TargetPlatform.windows:
         return windows;
       case TargetPlatform.linux:
@@ -41,46 +44,39 @@ class DefaultFirebaseOptions {
   }
 
   static const FirebaseOptions web = FirebaseOptions(
-    apiKey: '',
-    appId: '1:30592806656:web:12b860c32c62fc7f067ab5',
-    messagingSenderId: '30592806656',
-    projectId: 'nexvolt-493704',
-    authDomain: 'nexvolt-493704.firebaseapp.com',
-    storageBucket: 'nexvolt-493704.firebasestorage.app',
+    apiKey: 'AIzaSyD4Gz7wBMPnC3rC3cRO13deGsrH_XCtgKk',
+    appId: '1:545076806831:web:3b5f4505244df78a8a005a',
+    messagingSenderId: '545076806831',
+    projectId: 'gen-lang-client-0519574921',
+    authDomain: 'gen-lang-client-0519574921.firebaseapp.com',
+    storageBucket: 'gen-lang-client-0519574921.firebasestorage.app',
+    measurementId: 'G-TM1G2NXYQ5',
   );
 
   static const FirebaseOptions android = FirebaseOptions(
-    apiKey: 'AIzaSyDVJiqGOd8qnYzEnuUF1NjhRzeb1TKvc3I',
-    appId: '1:30592806656:android:f608f5afcfdb9093144de5',
-    messagingSenderId: '30592806656',
-    projectId: 'nexvolt-493704',
-    storageBucket: 'nexvolt-493704.firebasestorage.app',
+    apiKey: 'AIzaSyBcmIPz8U1twAWOnOHrcV768VeRpEgt3oA',
+    appId: '1:545076806831:android:3dbbd18246ca99448a005a',
+    messagingSenderId: '545076806831',
+    projectId: 'gen-lang-client-0519574921',
+    storageBucket: 'gen-lang-client-0519574921.firebasestorage.app',
   );
 
   static const FirebaseOptions ios = FirebaseOptions(
-    apiKey: 'AIzaSyDVJiqGOd8qnYzEnuUF1NjhRzeb1TKvc3I',
-    appId: '1:30592806656:ios:252f9030451c8916067ab5',
-    messagingSenderId: '30592806656',
-    projectId: 'nexvolt-493704',
-    storageBucket: 'nexvolt-493704.firebasestorage.app',
-    iosBundleId: 'com.example.nexvolt',
-  );
-
-  static const FirebaseOptions macos = FirebaseOptions(
-    apiKey: 'AIzaSyDVJiqGOd8qnYzEnuUF1NjhRzeb1TKvc3I',
-    appId: '1:30592806656:ios:252f9030451c8916067ab5',
-    messagingSenderId: '30592806656',
-    projectId: 'nexvolt-493704',
-    storageBucket: 'nexvolt-493704.firebasestorage.app',
-    iosBundleId: 'com.example.nexvolt',
+    apiKey: 'AIzaSyC51ntc0l-4RuSXD-fveprsEuDljcUzcbo',
+    appId: '1:545076806831:ios:00a0f0cf2bce42808a005a',
+    messagingSenderId: '545076806831',
+    projectId: 'gen-lang-client-0519574921',
+    storageBucket: 'gen-lang-client-0519574921.firebasestorage.app',
+    iosBundleId: 'com.example.flutterApplication2',
   );
 
   static const FirebaseOptions windows = FirebaseOptions(
-    apiKey: 'AIzaSyDVJiqGOd8qnYzEnuUF1NjhRzeb1TKvc3I',
-    appId: '1:30592806656:web:5f6e82d56363d52e067ab5',
-    messagingSenderId: '30592806656',
-    projectId: 'nexvolt-493704',
-    authDomain: 'nexvolt-493704.firebaseapp.com',
-    storageBucket: 'nexvolt-493704.firebasestorage.app',
+    apiKey: 'AIzaSyD4Gz7wBMPnC3rC3cRO13deGsrH_XCtgKk',
+    appId: '1:545076806831:web:f7499508a00666398a005a',
+    messagingSenderId: '545076806831',
+    projectId: 'gen-lang-client-0519574921',
+    authDomain: 'gen-lang-client-0519574921.firebaseapp.com',
+    storageBucket: 'gen-lang-client-0519574921.firebasestorage.app',
+    measurementId: 'G-RCSQZMPSTN',
   );
 }

@@ -48,7 +48,17 @@ class _ProfileScreenState extends State<ProfileScreen> {
       builder: (context, snapshot) {
         final profile = snapshot.data ?? const <String, dynamic>{};
         if (!_initialized && profile.isNotEmpty) {
-          _nameController.text = profile['name'] as String? ?? '';
+          final firstName = (profile['firstName'] as String?)?.trim() ?? '';
+          final lastName = (profile['lastName'] as String?)?.trim() ?? '';
+          final combinedName = [
+            firstName,
+            lastName,
+          ].where((v) => v.isNotEmpty).join(' ').trim();
+
+          _nameController.text =
+              (profile['name'] as String?)?.trim().isNotEmpty == true
+              ? (profile['name'] as String).trim()
+              : combinedName;
           _emailController.text = profile['email'] as String? ?? '';
           _homeCityController.text = profile['homeCity'] as String? ?? '';
           _initialized = true;

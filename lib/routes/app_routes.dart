@@ -100,7 +100,10 @@ class AppRoutes {
             ? (settings.arguments as StationListArgs).mainTabIndex
             : 0;
         return MaterialPageRoute(
-          builder: (_) => StationListScreen(mainTabIndex: mainTabIndex),
+          builder: (_) => StationListScreen(
+            repository: repository,
+            mainTabIndex: mainTabIndex,
+          ),
         );
       case stationDetails:
         final station = settings.arguments is StationDetailsArgs
@@ -113,6 +116,7 @@ class AppRoutes {
             : 0;
         return MaterialPageRoute(
           builder: (_) => StationDetailsScreen(
+            repository: repository,
             station: station,
             mainTabIndex: mainTabIndex,
           ),

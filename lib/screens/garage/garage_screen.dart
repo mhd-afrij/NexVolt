@@ -42,7 +42,15 @@ class GarageScreen extends StatelessWidget {
                         child: ListTile(
                           leading: const Icon(Icons.electric_car),
                           title: Text(v.model),
-                          subtitle: Text(v.plate),
+                          subtitle: Text(
+                            [
+                              v.plate,
+                              if (v.batteryVoltage.isNotEmpty)
+                                'Voltage: ${v.batteryVoltage}',
+                              if (v.connectorType.isNotEmpty)
+                                'Connector: ${v.connectorType}',
+                            ].join('\n'),
+                          ),
                           trailing: Text('${v.batteryPercent}%'),
                         ),
                       ),

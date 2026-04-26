@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'otp_screen.dart';
 import '../core/constants/app_colors.dart';
+import '../core/services/firebase_auth_service.dart';
 
 class VerificationScreen extends StatefulWidget {
   const VerificationScreen({super.key});
@@ -64,45 +65,33 @@ class _VerificationScreenState extends State<VerificationScreen>
     String phoneNumber = selectedCode + number;
 
     try {
-      await FirebaseAuth.instance.verifyPhoneNumber(
+      final verificationId = await FirebaseAuthService.requestOtp(
         phoneNumber: phoneNumber,
-        verificationCompleted: (PhoneAuthCredential credential) async {
-          await FirebaseAuth.instance.signInWithCredential(credential);
-        },
-        verificationFailed: (FirebaseAuthException e) {
-          if (!mounted) return;
-          setState(() => isLoading = false);
-          final message = e.code == 'operation-not-allowed'
-              ? 'Phone sign-in is disabled for this Firebase project.'
-              : (e.message ?? "Verification Failed");
-          ScaffoldMessenger.of(
-            context,
-          ).showSnackBar(SnackBar(content: Text(message)));
-        },
-        codeSent: (String verificationId, int? resendToken) {
-          if (!mounted) return;
-          setState(() => isLoading = false);
-          Navigator.push(
-            context,
-            MaterialPageRoute(
-              builder: (_) => OtpScreen(
-                verificationId: verificationId,
-                phoneNumber: phoneNumber,
-              ),
-            ),
-          );
-        },
-        codeAutoRetrievalTimeout: (String verificationId) {
-          if (!mounted) return;
-          setState(() => isLoading = false);
-        },
+      );
+      if (!mounted) return;
+      setState(() => isLoading = false);
+      Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (_) => OtpScreen(
+            verificationId: verificationId,
+            phoneNumber: phoneNumber,
+          ),
+        ),
       );
     } catch (e) {
       if (!mounted) return;
       setState(() => isLoading = false);
+
+      final message = e is UnsupportedError
+          ? 'Phone OTP is not supported on this platform. Use Android or iOS, or configure web phone auth.'
+          : e is FirebaseAuthException && e.code == 'configuration-not-found'
+          ? 'Firebase phone auth is not configured. Enable Phone sign-in in Firebase Authentication and add your Android SHA-1/SHA-256 fingerprints, then download the updated google-services.json.'
+          : 'Failed to send OTP: $e';
+
       ScaffoldMessenger.of(
         context,
-      ).showSnackBar(SnackBar(content: Text('Failed to send OTP: $e')));
+      ).showSnackBar(SnackBar(content: Text(message)));
     }
   }
 

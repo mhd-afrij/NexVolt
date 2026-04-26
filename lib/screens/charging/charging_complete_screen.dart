@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 
 import '../../routes/app_routes.dart';
 
@@ -29,17 +30,12 @@ class ChargingCompleteScreen extends StatelessWidget {
               const Text('Duration: 42 minutes'),
               const SizedBox(height: 18),
               FilledButton(
-                onPressed: () => Navigator.pushNamedAndRemoveUntil(
-                  context,
-                  AppRoutes.home,
-                  (route) => false,
-                ),
+                onPressed: () => context.go(AppRoutes.home),
                 child: const Text('Back to Home'),
               ),
               const SizedBox(height: 8),
               OutlinedButton(
-                onPressed: () =>
-                    Navigator.pushNamed(context, AppRoutes.bookingHistory),
+                onPressed: () => context.push(AppRoutes.bookingHistory),
                 child: const Text('View Booking History'),
               ),
             ],

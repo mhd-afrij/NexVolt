@@ -61,6 +61,7 @@
       console.error('Google Maps authentication failed. Check key and referrer restrictions.');
     };
 
+    // Inject at deploy time, for example via CI template replacement.
     window.MAPS_API_KEY = '';
 
     (function loadGoogleMapsIfConfigured() {
@@ -69,14 +70,14 @@
         return;
       }
 
-      const script = document.createElement('script');
-      script.async = true;
-      script.defer = true;
-      script.src =
+      const mapsScript = document.createElement('script');
+      mapsScript.async = true;
+      mapsScript.defer = true;
+      mapsScript.src =
         'https://maps.googleapis.com/maps/api/js?key=' +
         encodeURIComponent(window.MAPS_API_KEY) +
         '&loading=async&libraries=places';
-      document.head.appendChild(script);
+      document.head.appendChild(mapsScript);
     })();
   </script>
 </head>

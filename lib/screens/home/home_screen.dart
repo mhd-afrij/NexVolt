@@ -1,11 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 
+import '../../core/config/app_config.dart';
 import '../../core/constants/app_colors.dart';
+import '../../core/services/weather_service.dart';
 import '../../core/services/firestore_service.dart';
 import '../../core/services/location_service.dart';
 import '../../models/station_model.dart';
 import '../../models/vehicle_model.dart';
+import '../../models/weather_snapshot.dart';
 import '../booking/booking_screen.dart';
 import '../garage/garage_screen.dart';
 import '../planner/trip_planner_screen.dart';
@@ -53,6 +56,7 @@ class _HomeScreenState extends State<HomeScreen> {
         startupWarning: widget.startupWarning,
         enableMaps: widget.enableMaps,
         onGoToGarage: () => _goToTab(2),
+        onGoToAccount: () => _goToTab(4),
       ),
       const TripPlannerScreen(),
       GarageScreen(repository: widget.repository),
@@ -128,12 +132,14 @@ class _DashboardScreen extends StatefulWidget {
   const _DashboardScreen({
     required this.repository,
     required this.onGoToGarage,
+    required this.onGoToAccount,
     this.startupWarning,
     required this.enableMaps,
   });
 
   final AppRepository repository;
   final VoidCallback onGoToGarage;
+  final VoidCallback onGoToAccount;
   final String? startupWarning;
   final bool enableMaps;
 
@@ -144,7 +150,10 @@ class _DashboardScreen extends StatefulWidget {
 class _DashboardScreenState extends State<_DashboardScreen> {
   WeatherSnapshot? _weather;
   String _locationLabel = 'Detecting location';
-  LatLng _currentLatLng = const LatLng(6.9271, 79.8612);
+  LatLng _currentLatLng = const LatLng(
+    AppConfig.fallbackLatitude,
+    AppConfig.fallbackLongitude,
+  );
   bool _loadingWeather = true;
 
   String _resolveWelcomeName(Map<String, dynamic> profile) {
@@ -278,77 +287,78 @@ class _DashboardScreenState extends State<_DashboardScreen> {
             builder: (context, snapshot) {
               final profile = snapshot.data ?? const <String, dynamic>{};
               final name = _resolveWelcomeName(profile);
-              return Container(
-                padding: const EdgeInsets.all(16),
-                decoration: BoxDecoration(
-                  gradient: const LinearGradient(
-                    begin: Alignment.topLeft,
-                    end: Alignment.bottomRight,
-                    colors: [AppColors.backgroundTop, AppColors.cardBackground],
+              return GestureDetector(
+                behavior: HitTestBehavior.opaque,
+                onTap: widget.onGoToAccount,
+                child: Container(
+                  padding: const EdgeInsets.all(16),
+                  decoration: BoxDecoration(
+                    gradient: const LinearGradient(
+                      begin: Alignment.topLeft,
+                      end: Alignment.bottomRight,
+                      colors: [
+                        AppColors.backgroundTop,
+                        AppColors.cardBackground,
+                      ],
+                    ),
+                    borderRadius: BorderRadius.circular(18),
+                    border: Border.all(color: AppColors.cardBorder),
                   ),
-                  borderRadius: BorderRadius.circular(18),
-                  border: Border.all(color: AppColors.cardBorder),
-                ),
-                child: Row(
-                  children: [
-                    Container(
-                      width: 52,
-                      height: 52,
-                      decoration: BoxDecoration(
-                        shape: BoxShape.circle,
-                        border: Border.all(
-                          color: AppColors.primary.withValues(alpha: 0.75),
-                          width: 2,
-                        ),
-                        gradient: const LinearGradient(
-                          colors: [Color(0xFF26344A), Color(0xFF1A2435)],
-                        ),
-                      ),
-                      child: const Icon(
-                        Icons.person,
-                        color: AppColors.textPrimary,
-                      ),
-                    ),
-                    const SizedBox(width: 12),
-                    Expanded(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            'Good Morning,',
-                            style: Theme.of(context).textTheme.titleMedium
-                                ?.copyWith(color: AppColors.textSecondary),
+                  child: Row(
+                    children: [
+                      Container(
+                        width: 52,
+                        height: 52,
+                        decoration: BoxDecoration(
+                          shape: BoxShape.circle,
+                          border: Border.all(
+                            color: AppColors.primary.withValues(alpha: 0.75),
+                            width: 2,
                           ),
-                          const SizedBox(height: 2),
-                          RichText(
-                            text: TextSpan(
-                              style: Theme.of(
-                                context,
-                              ).textTheme.headlineSmall?.copyWith(fontSize: 24),
-                              children: [
-                                const TextSpan(text: 'Welcome '),
-                                TextSpan(
-                                  text: name,
-                                  style: const TextStyle(
-                                    color: AppColors.primary,
-                                  ),
-                                ),
-                              ],
+                          gradient: const LinearGradient(
+                            colors: [Color(0xFF26344A), Color(0xFF1A2435)],
+                          ),
+                        ),
+                        child: const Icon(
+                          Icons.person,
+                          color: AppColors.textPrimary,
+                        ),
+                      ),
+                      const SizedBox(width: 12),
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              'Good Morning,',
+                              style: Theme.of(context).textTheme.titleMedium
+                                  ?.copyWith(color: AppColors.textSecondary),
                             ),
-                          ),
-                        ],
-                      ),
-                    ),
-                    IconButton(
-                      onPressed: () => Navigator.of(context).push(
-                        MaterialPageRoute(
-                          builder: (_) =>
-                              ProfileScreen(repository: widget.repository),
+                            const SizedBox(height: 2),
+                            RichText(
+                              text: TextSpan(
+                                style: Theme.of(context).textTheme.headlineSmall
+                                    ?.copyWith(fontSize: 24),
+                                children: [
+                                  const TextSpan(text: 'Welcome '),
+                                  TextSpan(
+                                    text: name,
+                                    style: const TextStyle(
+                                      color: AppColors.primary,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ],
                         ),
                       ),
-                      icon: const Icon(Icons.tune, color: AppColors.primary),
-                    ),
-                  ],
+                      IconButton(
+                        onPressed: widget.onGoToAccount,
+                        icon: const Icon(Icons.tune, color: AppColors.primary),
+                      ),
+                    ],
+                  ),
                 ),
               );
             },
@@ -387,6 +397,21 @@ class _DashboardScreenState extends State<_DashboardScreen> {
                                 color: AppColors.textSecondary,
                               ),
                             ),
+                            if (vehicle.batteryVoltage.isNotEmpty ||
+                                vehicle.connectorType.isNotEmpty) ...[
+                              const SizedBox(height: 4),
+                              Text(
+                                [
+                                  if (vehicle.batteryVoltage.isNotEmpty)
+                                    vehicle.batteryVoltage,
+                                  if (vehicle.connectorType.isNotEmpty)
+                                    vehicle.connectorType,
+                                ].join(' • '),
+                                style: const TextStyle(
+                                  color: AppColors.textSecondary,
+                                ),
+                              ),
+                            ],
                             const SizedBox(height: 8),
                             Text(
                               'Battery: ${vehicle.batteryPercent}%',
@@ -723,6 +748,9 @@ class _WeatherService {
     required double latitude,
     required double longitude,
   }) {
-    return WeatherApi.fetchWeather(latitude: latitude, longitude: longitude);
+    return WeatherService.fetchWeather(
+      latitude: latitude,
+      longitude: longitude,
+    );
   }
 }

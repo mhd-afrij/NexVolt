@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import '../core/app_strings.dart';
 import '../core/constants/app_colors.dart';
+import '../core/services/firebase_auth_service.dart';
 import 'auth_check_screen.dart';
 import 'register_page.dart';
 
@@ -92,7 +93,7 @@ class _LoginPageState extends State<LoginPage>
     setState(() => _isLoading = true);
 
     try {
-      await FirebaseAuth.instance.signInWithEmailAndPassword(
+      await FirebaseAuthService.signIn(
         email: emailController.text.trim(),
         password: passwordController.text.trim(),
       );
@@ -101,40 +102,10 @@ class _LoginPageState extends State<LoginPage>
         context,
         MaterialPageRoute(builder: (_) => const AuthCheckScreen()),
       );
-    } on FirebaseAuthException catch (e) {
+    } catch (e) {
       if (!mounted) return;
-      debugPrint('🔥 Firebase code: ${e.code}');
       final s = AppStrings.of(context);
-      String message;
-      switch (e.code) {
-        case 'invalid-credential':
-          message = s.loginErrorInvalid;
-          break;
-        case 'user-not-found':
-          message = s.loginErrorNoUser;
-          break;
-        case 'wrong-password':
-          message = s.loginErrorInvalid;
-          break;
-        case 'invalid-email':
-          message = s.registerErrorInvalidEmail;
-          break;
-        case 'user-disabled':
-          message = s.loginErrorDisabled;
-          break;
-        case 'too-many-requests':
-          message = s.loginErrorTooMany;
-          break;
-        case 'network-request-failed':
-          message = s.loginErrorNetwork;
-          break;
-        case 'operation-not-allowed':
-          message =
-              'Email/Password sign-in is disabled for this Firebase project.';
-          break;
-        default:
-          message = s.errorUnexpected;
-      }
+      final message = _loginErrorMessage(e, s);
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text(message),
@@ -145,6 +116,23 @@ class _LoginPageState extends State<LoginPage>
     } finally {
       if (mounted) setState(() => _isLoading = false);
     }
+  }
+
+  String _loginErrorMessage(Object error, AppStrings s) {
+    if (error is FirebaseAuthException) {
+      switch (error.code) {
+        case 'invalid-credential':
+        case 'wrong-password':
+        case 'user-not-found':
+          return s.loginErrorInvalid;
+        case 'invalid-email':
+          return s.registerErrorInvalidEmail;
+        default:
+          return s.errorUnexpected;
+      }
+    }
+
+    return s.errorUnexpected;
   }
 
   void _showForgotPassword() {
@@ -187,7 +175,7 @@ class _LoginPageState extends State<LoginPage>
             onPressed: () async {
               if (resetCtrl.text.trim().isNotEmpty) {
                 try {
-                  await FirebaseAuth.instance.sendPasswordResetEmail(
+                  await FirebaseAuthService.sendPasswordResetEmail(
                     email: resetCtrl.text.trim(),
                   );
 
@@ -198,11 +186,11 @@ class _LoginPageState extends State<LoginPage>
                   ScaffoldMessenger.of(
                     context,
                   ).showSnackBar(SnackBar(content: Text(s.loginResetSuccess)));
-                } on FirebaseAuthException catch (e) {
+                } catch (e) {
                   if (!mounted) return;
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(content: Text(e.message ?? s.errorUnexpected)),
-                  );
+                  ScaffoldMessenger.of(
+                    context,
+                  ).showSnackBar(SnackBar(content: Text(e.toString())));
                 }
               }
             },

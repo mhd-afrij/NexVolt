@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import '../screens/vehicles/vehicle_details_add.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
 import '../core/constants/app_colors.dart';
+import '../core/services/firebase_auth_service.dart';
 
 class OtpScreen extends StatefulWidget {
   final String verificationId;
@@ -47,22 +47,18 @@ class _OtpScreenState extends State<OtpScreen>
     setState(() => isLoading = true);
 
     try {
-      final credential = PhoneAuthProvider.credential(
+      await FirebaseAuthService.verifyOtp(
         verificationId: widget.verificationId,
         smsCode: _otpController.text.trim(),
       );
-
-      await FirebaseAuth.instance.signInWithCredential(credential);
 
       if (!mounted) return;
 
       setState(() => isLoading = false);
 
-      String userId = FirebaseAuth.instance.currentUser!.uid;
-      await FirebaseFirestore.instance.collection("users").doc(userId).set({
-        "phone": widget.phoneNumber,
-        "createdAt": DateTime.now(),
-      });
+      final userId =
+          FirebaseAuthService.currentUserId ??
+          'user-${DateTime.now().millisecondsSinceEpoch}';
 
       if (!mounted) return;
 
@@ -79,9 +75,9 @@ class _OtpScreenState extends State<OtpScreen>
     } on FirebaseAuthException catch (e) {
       if (!mounted) return;
       setState(() => isLoading = false);
-      final message = e.code == 'operation-not-allowed'
-          ? 'Phone sign-in is disabled for this Firebase project.'
-          : (e.message ?? "Invalid OTP");
+      final message = e.code == 'invalid-verification-code'
+          ? 'Invalid OTP'
+          : 'Failed to verify OTP: ${e.message}';
       ScaffoldMessenger.of(
         context,
       ).showSnackBar(SnackBar(content: Text(message)));

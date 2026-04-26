@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:go_router/go_router.dart';
 import '../../core/constants/app_colors.dart';
 import '../../core/app_animations.dart';
+import '../../core/services/firebase_auth_service.dart';
 
 class SplashScreen extends StatefulWidget {
   const SplashScreen({super.key});
@@ -38,7 +38,7 @@ class _SplashScreenState extends State<SplashScreen>
 
     _controller.repeat(reverse: true);
 
-    final isSignedIn = FirebaseAuth.instance.currentUser != null;
+    final isSignedIn = FirebaseAuthService.isSignedIn;
 
     Future.delayed(Duration(seconds: isSignedIn ? 1 : 4), () {
       if (!mounted) return;

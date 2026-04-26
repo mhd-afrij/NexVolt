@@ -397,8 +397,6 @@ class AppStrings {
 
   String get homeNavProfile => _t('Profile', 'පැතිකඩ', 'சுயவிவரம்');
 
-  String get homeNavSettings => _t('Settings', 'සැකසුම්', 'அமைப்புகள்');
-
   String get homeNoVehicle =>
       _t('No vehicles found', 'වාහන හමු නොවීය', 'வாகனங்கள் இல்லை');
 
@@ -419,7 +417,4 @@ class AppStrings {
     'අනපේක්ෂිත දෝෂයක්. නැවත උත්සාහ කරන්න.',
     'எதிர்பாராத பிழை. மீண்டும் முயற்சிக்கவும்.',
   );
-
-  String get comingSoon =>
-      _t('Coming soon!', 'ඉක්මනින් එනවා!', 'விரைவில் வருகிறது!');
 }

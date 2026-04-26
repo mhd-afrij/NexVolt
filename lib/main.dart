@@ -1,11 +1,13 @@
 import 'dart:async';
 
+import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 
 import 'app.dart';
-import 'core/services/firebase_bootstrap_service.dart';
 import 'core/services/firestore_service.dart';
+import 'core/services/firestore_sample_importer.dart';
+import 'firebase_options.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -28,26 +30,64 @@ class _BootstrapApp extends StatefulWidget {
 }
 
 class _BootstrapAppState extends State<_BootstrapApp> {
+  static const Duration _firebaseInitTimeout = Duration(seconds: 4);
+  static const Duration _remoteSeedTimeout = Duration(seconds: 3);
+  static const Duration _sampleImportTimeout = Duration(seconds: 3);
+
   static const bool _enableWebMaps = bool.fromEnvironment(
     'ENABLE_WEB_MAPS',
+    defaultValue: true,
+  );
+  static const bool _importSampleFirestore = bool.fromEnvironment(
+    'IMPORT_SAMPLE_FIRESTORE',
     defaultValue: false,
   );
 
   late final Future<_BootstrapState> _startupFuture = _prepareStartup();
 
   Future<_BootstrapState> _prepareStartup() async {
-    final firebase = await FirebaseBootstrapService.initialize();
-    final repository = AppRepository(useRemoteDb: firebase.isEnabled);
-    await repository.seedDefaults().timeout(const Duration(seconds: 8));
+    String? startupWarning;
+    var firebaseReady = true;
 
-    final warningParts = <String>[];
-    if (firebase.warning != null) {
-      warningParts.add(firebase.warning!);
+    try {
+      await Firebase.initializeApp(
+        options: DefaultFirebaseOptions.currentPlatform,
+      ).timeout(_firebaseInitTimeout);
+    } catch (_) {
+      firebaseReady = false;
+      startupWarning =
+          'Firebase init failed. Firestore disabled, running in local mode.';
     }
 
+    if (firebaseReady) {
+      if (_importSampleFirestore) {
+        unawaited(
+          FirestoreSampleImporter.importSampleData()
+              .timeout(_sampleImportTimeout)
+              .catchError((_) {}),
+        );
+      }
+
+      final repository = AppRepository(useRemoteDb: true);
+      try {
+        await repository.seedDefaults().timeout(_remoteSeedTimeout);
+      } catch (_) {
+        startupWarning ??=
+            'Firebase is slow or unavailable. App loaded with limited cloud sync.';
+      }
+
+      return _BootstrapState(
+        repository: repository,
+        startupWarning: startupWarning,
+      );
+    }
+
+    final fallbackRepository = AppRepository(useRemoteDb: false);
+    await fallbackRepository.seedDefaults();
+
     return _BootstrapState(
-      repository: repository,
-      startupWarning: warningParts.isEmpty ? null : warningParts.join(' '),
+      repository: fallbackRepository,
+      startupWarning: startupWarning,
     );
   }
 
@@ -63,16 +103,7 @@ class _BootstrapAppState extends State<_BootstrapApp> {
           );
         }
 
-        final state = snapshot.data;
-        if (state == null) {
-          final fallbackRepo = AppRepository(useRemoteDb: false);
-          return NexVoltApp(
-            repository: fallbackRepo,
-            startupWarning: 'Startup failed. Please check Firebase setup.',
-            enableMaps: !kIsWeb || _enableWebMaps,
-          );
-        }
-
+        final state = snapshot.data!;
         return NexVoltApp(
           repository: state.repository,
           startupWarning: state.startupWarning,

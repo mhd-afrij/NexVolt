@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
 import '../core/constants/app_colors.dart';
+import '../core/services/firestore_service.dart';
+import '../core/services/firebase_auth_service.dart';
 import 'auth_check_screen.dart';
 import 'login_page.dart';
 
@@ -95,24 +96,25 @@ class _RegisterPageState extends State<RegisterPage>
     setState(() => _isLoading = true);
 
     try {
-      final credential = await FirebaseAuth.instance
-          .createUserWithEmailAndPassword(
-            email: emailController.text.trim(),
-            password: passwordController.text.trim(),
-          );
+      await FirebaseAuthService.register(
+        email: emailController.text.trim(),
+        password: passwordController.text.trim(),
+      );
 
-      final user = credential.user!;
+      final fullName =
+          '${firstNameController.text.trim()} ${lastNameController.text.trim()}'
+              .trim();
+      final currentUser = FirebaseAuth.instance.currentUser;
+      if (currentUser != null && fullName.isNotEmpty) {
+        await currentUser.updateDisplayName(fullName);
+      }
 
-      await FirebaseFirestore.instance.collection('users').doc(user.uid).set({
-        'uid': user.uid,
-        'firstName': firstNameController.text.trim(),
-        'lastName': lastNameController.text.trim(),
-        'email': emailController.text.trim(),
-        'phone': phoneController.text.trim(),
-        'role': 'user',
-        'loginMethod': 'email',
-        'createdAt': Timestamp.now(),
-      });
+      final repository = AppRepository(useRemoteDb: true);
+      await repository.updateProfile(
+        name: fullName,
+        email: emailController.text.trim(),
+        homeCity: '',
+      );
 
       if (!mounted) return;
 
@@ -121,31 +123,11 @@ class _RegisterPageState extends State<RegisterPage>
         MaterialPageRoute(builder: (_) => const AuthCheckScreen()),
         (route) => false,
       );
-    } on FirebaseAuthException catch (e) {
+    } catch (e) {
       if (!mounted) return;
-      debugPrint('🔥 Register error: ${e.code}');
+      debugPrint('🔥 Register error: $e');
 
-      String message;
-      switch (e.code) {
-        case 'email-already-in-use':
-          message = 'This email is already registered. Please login.';
-          break;
-        case 'weak-password':
-          message = 'Password is too weak. Use at least 6 characters.';
-          break;
-        case 'invalid-email':
-          message = 'Please enter a valid email address.';
-          break;
-        case 'network-request-failed':
-          message = 'No internet connection.';
-          break;
-        case 'operation-not-allowed':
-          message =
-              'Email/Password sign-in is disabled for this Firebase project.';
-          break;
-        default:
-          message = 'Registration failed (${e.code}). Try again.';
-      }
+      final message = _registerErrorMessage(e);
 
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
@@ -157,20 +139,26 @@ class _RegisterPageState extends State<RegisterPage>
           duration: const Duration(seconds: 4),
         ),
       );
-    } catch (e) {
-      if (!mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text(
-            'Unexpected error: $e',
-            style: const TextStyle(color: AppColors.onErrorContainer),
-          ),
-          backgroundColor: AppColors.errorContainer,
-        ),
-      );
     } finally {
       if (mounted) setState(() => _isLoading = false);
     }
+  }
+
+  String _registerErrorMessage(Object error) {
+    if (error is FirebaseAuthException) {
+      switch (error.code) {
+        case 'invalid-email':
+          return 'Please enter a valid email address.';
+        case 'weak-password':
+          return 'Password is too weak. Use at least 6 characters.';
+        case 'email-already-in-use':
+          return 'This email is already registered.';
+        default:
+          return 'Registration failed. Try again.';
+      }
+    }
+
+    return 'Registration failed. Try again.';
   }
 
   Widget _buildField({

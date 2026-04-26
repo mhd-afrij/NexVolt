@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 
 import '../../routes/app_routes.dart';
 
@@ -31,18 +32,13 @@ class BookingSuccessScreen extends StatelessWidget {
               ),
               const SizedBox(height: 18),
               FilledButton.icon(
-                onPressed: () =>
-                    Navigator.pushNamed(context, AppRoutes.qrScanner),
+                onPressed: () => context.push(AppRoutes.qrScanner),
                 icon: const Icon(Icons.qr_code_scanner),
                 label: const Text('Scan QR to Start'),
               ),
               const SizedBox(height: 8),
               OutlinedButton(
-                onPressed: () => Navigator.pushNamedAndRemoveUntil(
-                  context,
-                  AppRoutes.home,
-                  (route) => false,
-                ),
+                onPressed: () => context.go(AppRoutes.home),
                 child: const Text('Back to Home'),
               ),
             ],

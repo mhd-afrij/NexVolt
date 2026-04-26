@@ -3,11 +3,15 @@ class VehicleModel {
     required this.model,
     required this.plate,
     required this.batteryPercent,
+    this.batteryVoltage = '',
+    this.connectorType = '',
   });
 
   final String model;
   final String plate;
   final int batteryPercent;
+  final String batteryVoltage;
+  final String connectorType;
 
   factory VehicleModel.fromMap(Map<String, dynamic> map) {
     final batteryText = (map['battery'] as String?)?.trim() ?? '';
@@ -27,10 +31,24 @@ class VehicleModel {
       plate: derivedPlate.isEmpty ? '-' : derivedPlate,
       batteryPercent:
           (map['batteryPercent'] as num?)?.toInt() ?? parsedBattery ?? 0,
+      batteryVoltage:
+          (map['batteryVoltage'] as String?)?.trim().isNotEmpty == true
+          ? (map['batteryVoltage'] as String).trim()
+          : (map['battery'] as String?)?.trim() ?? '',
+      connectorType:
+          (map['connectorType'] as String?)?.trim().isNotEmpty == true
+          ? (map['connectorType'] as String).trim()
+          : (map['connector'] as String?)?.trim() ?? '',
     );
   }
 
   Map<String, dynamic> toMap() {
-    return {'model': model, 'plate': plate, 'batteryPercent': batteryPercent};
+    return {
+      'model': model,
+      'plate': plate,
+      'batteryPercent': batteryPercent,
+      'batteryVoltage': batteryVoltage,
+      'connectorType': connectorType,
+    };
   }
 }
