@@ -3,10 +3,7 @@ import 'package:flutter/foundation.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:uuid/uuid.dart';
 import '../../data/models/app_notification_model.dart';
-import '../../data/models/charging_activity_model.dart';
 import '../../data/models/favorite_station_model.dart';
-import '../../data/models/payment_method_model.dart';
-import '../../data/models/support_ticket_model.dart';
 import '../../data/models/user_profile_model.dart';
 import '../../data/models/vehicle_model.dart';
 import '../../data/repositories/account_repository.dart';
@@ -39,14 +36,6 @@ class AccountProvider extends ChangeNotifier {
 
   List<VehicleModel> _vehicles = [];
   List<VehicleModel> get vehicles => List.unmodifiable(_vehicles);
-
-  List<PaymentMethodModel> _paymentMethods = [];
-  List<PaymentMethodModel> get paymentMethods =>
-      List.unmodifiable(_paymentMethods);
-
-  List<ChargingActivityModel> _chargingActivities = [];
-  List<ChargingActivityModel> get chargingActivities =>
-      List.unmodifiable(_chargingActivities);
 
   List<AppNotificationModel> _notifications = [];
   List<AppNotificationModel> get notifications =>
@@ -218,80 +207,6 @@ class AccountProvider extends ChangeNotifier {
     }
   }
 
-  // Payment Methods
-  Future<void> loadPaymentMethods() async {
-    try {
-      _paymentMethods = await _repository.getPaymentMethods();
-      notifyListeners();
-    } catch (e) {
-      _setError('Could not load payment methods: $e');
-    }
-  }
-
-  Future<bool> addPaymentMethod(PaymentMethodModel method) async {
-    _setLoading(true);
-    try {
-      final withId = method.copyWith(
-        paymentMethodId: _uuid.v4(),
-        userId: _repository.currentUserId,
-        createdAt: DateTime.now(),
-      );
-      await _repository.addPaymentMethod(withId);
-      _paymentMethods = [..._paymentMethods, withId];
-      notifyListeners();
-      return true;
-    } catch (e) {
-      _setError('Failed to add payment method: $e');
-      return false;
-    } finally {
-      _setLoading(false);
-    }
-  }
-
-  Future<bool> deletePaymentMethod(String paymentMethodId) async {
-    _setLoading(true);
-    try {
-      await _repository.deletePaymentMethod(paymentMethodId);
-      _paymentMethods = _paymentMethods
-          .where((p) => p.paymentMethodId != paymentMethodId)
-          .toList();
-      notifyListeners();
-      return true;
-    } catch (e) {
-      _setError('Failed to delete payment method: $e');
-      return false;
-    } finally {
-      _setLoading(false);
-    }
-  }
-
-  Future<bool> setDefaultPaymentMethod(String paymentMethodId) async {
-    _setLoading(true);
-    try {
-      await _repository.setDefaultPaymentMethod(paymentMethodId);
-      _paymentMethods = _paymentMethods
-          .map((p) => p.copyWith(isDefault: p.paymentMethodId == paymentMethodId))
-          .toList();
-      notifyListeners();
-      return true;
-    } catch (e) {
-      _setError('Failed to set default: $e');
-      return false;
-    } finally {
-      _setLoading(false);
-    }
-  }
-
-  // Charging Activities
-
-  Future<void> loadChargingActivities() async {
-    try {
-      _chargingActivities = await _repository.getChargingActivities();
-      notifyListeners();
-    } catch (e) {
-      _setError('Could not load charging activity: $e');
-    }
-  }
 
   // Notifications
 
@@ -403,37 +318,6 @@ class AccountProvider extends ChangeNotifier {
     }
   }
 
-  // Support
-
-  Future<bool> submitSupportTicket({
-    required String subject,
-    required String message,
-  }) async {
-    if (subject.trim().isEmpty || message.trim().isEmpty) {
-      _setError('Subject and message are required.');
-      return false;
-    }
-
-    _setLoading(true);
-    try {
-      final ticket = SupportTicketModel(
-        ticketId: _uuid.v4(),
-        userId: _repository.currentUserId,
-        subject: subject.trim(),
-        message: message.trim(),
-        status: 'open',
-        createdAt: DateTime.now(),
-      );
-      await _repository.createSupportTicket(ticket);
-      return true;
-    } catch (e) {
-      _setError('Failed to submit ticket: $e');
-      return false;
-    } finally {
-      _setLoading(false);
-    }
-  }
-
   // Auth
 
   Future<void> logout() async {
@@ -443,8 +327,6 @@ class AccountProvider extends ChangeNotifier {
       // Clear all local state after logout
       _userProfile = null;
       _vehicles = [];
-      _paymentMethods = [];
-      _chargingActivities = [];
       _notifications = [];
       _favoriteStations = [];
       _errorMessage = null;

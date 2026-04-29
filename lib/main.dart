@@ -239,41 +239,79 @@ class BookingTab extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return const Center(
-      child: Padding(
-        padding: EdgeInsets.symmetric(horizontal: 24),
-        child: Text(
-          'View active booking sessions, upcoming reservations, and invoice summaries.',
-          textAlign: TextAlign.center,
-          style: TextStyle(fontSize: 16, color: AppColors.textPrimary),
-        ),
+    return MaterialApp(
+      title: 'EKW Charging App',
+      theme: ThemeData(
+        primaryColor: Colors.green,
+        scaffoldBackgroundColor: Colors.white,
+        textTheme: GoogleFonts.poppinsTextTheme(),
+        useMaterial3: true,
       ),
+      home: MainScreen(),
+      debugShowCheckedModeBanner: false,
     );
   }
 }
 
-class AccountTab extends StatelessWidget {
-  const AccountTab({super.key});
+class MainScreen extends StatefulWidget {
+  const MainScreen({super.key});
+
+  @override
+  State<MainScreen> createState() => _MainScreenState();
+}
+
+class _MainScreenState extends State<MainScreen> {
+  int _selectedIndex = 4; // Account tab selected by default
+
+  final List<Widget> _screens = [
+    HomeScreen(),
+    PlannerScreen(),
+    GarageScreen(),
+    BookingScreen(),
+    AccountScreen(), // Account tab - ithula inner navigation irukum
+  ];
 
   @override
   Widget build(BuildContext context) {
-    return const Center(
-      child: Padding(
-        padding: EdgeInsets.symmetric(horizontal: 24),
-        child: Text(
-          'Manage your profile, payment methods, and app preferences from here.',
-          textAlign: TextAlign.center,
-          style: TextStyle(fontSize: 16, color: AppColors.textPrimary),
-        ),
+    return Scaffold(
+      body: _screens[_selectedIndex],
+      bottomNavigationBar: BottomNavigationBar(
+        type: BottomNavigationBarType.fixed,
+        currentIndex: _selectedIndex,
+        onTap: (index) {
+          setState(() {
+            _selectedIndex = index;
+          });
+        },
+        selectedItemColor: Colors.green,
+        unselectedItemColor: Colors.grey,
+        items: const [
+          BottomNavigationBarItem(icon: Icon(Icons.home), label: 'Home'),
+          BottomNavigationBarItem(icon: Icon(Icons.calendar_today), label: 'Planner'),
+          BottomNavigationBarItem(icon: Icon(Icons.local_parking), label: 'Garage'),
+          BottomNavigationBarItem(icon: Icon(Icons.book_online), label: 'Booking'),
+          BottomNavigationBarItem(icon: Icon(Icons.person), label: 'Account'),
+        ],
       ),
     );
   }
 }
 
-class _SectionTitle extends StatelessWidget {
-  const _SectionTitle({required this.title});
+// Simple placeholder screens for other tabs
+class HomeScreen extends StatelessWidget {
+  const HomeScreen({super.key});
 
-  final String title;
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(title: Text('Home'), backgroundColor: Colors.green),
+      body: Center(child: Text('Home Screen - Coming Soon')),
+    );
+  }
+}
+
+class PlannerScreen extends StatelessWidget {
+  const PlannerScreen({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -284,6 +322,18 @@ class _SectionTitle extends StatelessWidget {
         fontWeight: FontWeight.w700,
         color: AppColors.textPrimary,
       ),
+    );
+  }
+}
+
+class BookingScreen extends StatelessWidget {
+  const BookingScreen({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(title: Text('Booking'), backgroundColor: Colors.green),
+      body: Center(child: Text('Booking Screen - Coming Soon')),
     );
   }
 }
