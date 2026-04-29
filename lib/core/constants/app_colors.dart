@@ -10,99 +10,144 @@ class AppColors {
 
   // ── Gradient (used on every screen background) ────────
   static const LinearGradient primaryGradient = LinearGradient(
-    colors: [emeraldGreen, electricBlue],
+    colors: [primary, primaryContainer],
     begin: Alignment.topLeft,
     end: Alignment.bottomRight,
   );
 
-  // Reversed gradient (for some buttons/accents)
-  static const LinearGradient reversedGradient = LinearGradient(
-    colors: [electricBlue, emeraldGreen],
+  // Secondary Gradient (Cyan to Electric)
+  static const LinearGradient secondaryGradient = LinearGradient(
+    colors: [secondary, primary],
     begin: Alignment.topLeft,
     end: Alignment.bottomRight,
   );
 
-  // ── White Card (bottom sheet style on all screens) ────
-  static const Color cardBackground = Colors.white;
-  static const BorderRadius cardBorderRadius = BorderRadius.only(
-    topLeft: Radius.circular(50),
-    topRight: Radius.circular(50),
+  // Accent Glow Gradient
+  static const LinearGradient accentGlowGradient = LinearGradient(
+    colors: [Color(0x0039FF14), Color(0x0000F5FF)],
+    begin: Alignment.topCenter,
+    end: Alignment.bottomCenter,
   );
 
-  // ── Text Colors ───────────────────────────────────────
-  static const Color textOnGradient       = Colors.white;
-  static const Color textOnGradientMuted  = Colors.white70;
-  static const Color textPrimary          = Color(0xFF1A1A1A);
-  static const Color textSecondary        = Color(0xFF6B6B6B);
-  static const Color textHint            = Color(0xFF9E9E9E);
-
-  // ── Input Field ───────────────────────────────────────
-  static const Color inputFill           = Color(0xFFF5F5F5); // grey.shade100
-  static const Color inputBorder         = Colors.transparent;
-
-  // ── Button Colors ─────────────────────────────────────
-  // animated button uses primaryGradient lerp — see AppAnimations
-  static const Color buttonTextColor     = Colors.white;
-  static const Color buttonDisabled      = Color(0xFFB0B0B0);
-
-  // ── Status / Feedback Colors ──────────────────────────
-  static const Color success             = Color(0xFF50C878); // same as emerald
-  static const Color error              = Color(0xFFE53935);
-  static const Color errorLight         = Color(0xFFFFEBEE);
-  static const Color errorBorder        = Color(0xFFEF9A9A);
-  static const Color warning            = Color(0xFFFFA726);
-  static const Color info               = Color(0xFF0077FF); // same as electric blue
-
-  // ── SnackBar ──────────────────────────────────────────
-  static const Color snackBarError      = Color(0xFFD32F2F);
-  static const Color snackBarSuccess    = Color(0xFF388E3C);
-  static const Color snackBarInfo       = Color(0xFF1565C0);
-
-  // ── Vehicle Card (home screen) ────────────────────────
+  // Vehicle Card Gradient
   static const LinearGradient vehicleCardGradient = LinearGradient(
-    colors: [emeraldGreen, electricBlue],
+    colors: [Color(0xFF1A222C), Color(0xFF0D1117)],
     begin: Alignment.topLeft,
     end: Alignment.bottomRight,
   );
-  static const Color vehicleCardOverlay  = Color(0x33FFFFFF); // white 20%
 
-  // ── Bottom Nav Bar ────────────────────────────────────
-  static const Color navBarBackground   = Colors.white;
-  static const Color navBarSelected     = electricBlue;
-  static const Color navBarUnselected   = Color(0xFF9E9E9E);
+  // ═══════════════════════════════════════════════════════════════
+  // SHADOWS & GLOWS
+  // ═══════════════════════════════════════════════════════════════
 
-  // ── Dropdown / Selector ───────────────────────────────
-  static const Color dropdownFill        = Color(0xFFF5F5F5);
-  static const Color dropdownSelected    = electricBlue;
-  static const Color dropdownSelectedBg  = Color(0x1A0077FF); // blue 10%
-  static const Color dropdownUnselected  = Color(0xFFF5F5F5);
+  // Ambient Glow (Primary tinted)
+  static Color primaryGlow = primary.withValues(alpha: 0.10);
+  static Color primaryGlowStrong = primary.withValues(alpha: 0.20);
 
-  // ── Step Indicator (vehicle screen) ──────────────────
-  static const Color stepActive          = electricBlue;
-  static const Color stepDone           = emeraldGreen;
-  static const Color stepInactive        = Color(0xFFDDDDDD);
+  // Secondary Glow
+  static Color secondaryGlow = secondary.withValues(alpha: 0.10);
+  static Color secondaryGlowStrong = secondary.withValues(alpha: 0.20);
 
-  // ── Divider ───────────────────────────────────────────
-  static const Color divider            = Color(0xFFEEEEEE);
+  // Card Shadow (tinted, not black)
+  static Color cardShadow = primary.withValues(alpha: 0.08);
+  static Color cardShadowStrong = primary.withValues(alpha: 0.15);
 
-  // ── Shimmer / Loading ─────────────────────────────────
-  static const Color shimmerBase        = Color(0xFFE0E0E0);
-  static const Color shimmerHighlight   = Color(0xFFF5F5F5);
+  // ═══════════════════════════════════════════════════════════════
+  // NAVIGATION
+  // ═══════════════════════════════════════════════════════════════
+  // NAVIGATION
+  // ═══════════════════════════════════════════════════════════════
 
-  // ── OTP Box ───────────────────────────────────────────
-  static const Color otpBoxFill         = Color(0xFFF5F5F5);
-  static const Color otpBoxFocused      = electricBlue;
-  static const Color otpBoxBorderFocused = electricBlue;
+  // navBackground is defined above with glass effect for legacy compatibility
+  static const Color navSelected = primary;
+  static const Color navUnselected = onSurfaceVariant;
 
-  // ── Language Selection ────────────────────────────────
-  static const Color langSelectedBorder  = electricBlue;
-  static const Color langSelectedBg     = Color(0x1A0077FF); // blue 10%
-  static const Color langUnselectedBg   = Color(0xFFF5F5F5);
+  // ═══════════════════════════════════════════════════════════════
+  // INPUTS & FIELDS
+  // ═══════════════════════════════════════════════════════════════
 
-  // ── Home Screen stats card ───────────────────────────
-  static const Color statCardBg         = Colors.white;
+  static const Color inputFill = surfaceContainerHighest;
+  static const Color inputBorder = Colors.transparent;
+  static const Color inputFocusedBorder = secondary;
+  static const Color inputFocusedGlow = Color(0x4000F5FF); // secondary 25%
 
-  // ── Shadow ───────────────────────────────────────────
-  static Color shadowColor              = Colors.black.withOpacity(0.08);
-  static Color gradientShadow           = electricBlue.withOpacity(0.30);
+  // ═══════════════════════════════════════════════════════════════
+  // STATUS COLORS
+  // ═══════════════════════════════════════════════════════════════
+
+  static const Color success = primary;
+  static const Color warning = Color(0xFFFFA726);
+  static const Color info = secondary;
+
+  // Battery Status
+  static const Color batteryLow = error;
+  static const Color batteryMedium = warning;
+  static const Color batteryHigh = primary;
+
+  // Charging Status
+  static const Color charging = primary;
+  static const Color chargingComplete = secondary;
+
+  // ═══════════════════════════════════════════════════════════════
+  // MISC
+  // ═══════════════════════════════════════════════════════════════
+
+  static const Color divider = Color(0xFF21262D);
+  static const Color shimmerBase = surfaceContainerLow;
+  static const Color shimmerHighlight = surfaceContainerHigh;
+
+  // OTP
+  static const Color otpBoxFill = surfaceContainerHighest;
+  static const Color otpBoxFocused = secondary;
+
+  // Cards
+  static const Color cardBackground = surfaceContainerLow;
+  static const BorderRadius cardBorderRadius = BorderRadius.only(
+    topLeft: Radius.circular(24),
+    topRight: Radius.circular(24),
+  );
+
+  // ═══════════════════════════════════════════════════════════════
+  // LEGACY ALIASES (for compatibility)
+  // ═══════════════════════════════════════════════════════════════
+
+  static const Color accent = primary;
+  static const Color electricBlue = secondary;
+  static const Color emeraldGreen = primary;
+  static const Color textPrimary = onSurface;
+  static const Color textSecondary = onSurfaceVariant;
+  static const Color textHint = onSurfaceVariant;
+  static const Color cardBorder = outlineVariant;
+  static const Color backgroundTop = voidBase;
+  static const Color backgroundBottom = surfaceContainerLow;
+  static const Color cardBackgroundElevated = surfaceContainerHigh;
+  static const Color navBackground = Color(
+    0xE6151D26,
+  ); // glass effect for legacy
+  static const Color navInactive = onSurfaceVariant;
+  static const Color star = Color(0xFFFFC107);
+  static const Color weatherCard = surfaceContainerHigh;
+
+  // Button Colors
+  static const Color buttonTextColor = onPrimary;
+  static const Color buttonDisabled = surfaceContainerHigh;
+
+  // Step Indicator
+  static const Color stepActive = secondary;
+  static const Color stepDone = primary;
+  static const Color stepInactive = outline;
+
+  // Snackbar
+  static const Color snackBarError = error;
+  static const Color snackBarSuccess = primary;
+  static const Color snackBarInfo = secondary;
+
+  // Language Selection
+  static const Color langSelectedBg = Color(0x3300F5FF);
+  static const Color langUnselectedBg = surfaceContainerHigh;
+  static const Color langSelectedBorder = secondary;
+
+  // Dropdown
+  static const Color dropdownSelected = secondary;
+  static const Color dropdownUnselected = surfaceContainerHigh;
 }
