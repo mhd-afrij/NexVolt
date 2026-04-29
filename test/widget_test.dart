@@ -1,20 +1,10 @@
 import 'package:flutter_test/flutter_test.dart';
-import 'package:nexvolt/app.dart';
-import 'package:nexvolt/core/services/firestore_service.dart';
+import 'package:nexvolt/main.dart';
 
 void main() {
-  testWidgets('Dashboard renders with profile greeting', (
-    WidgetTester tester,
-  ) async {
-    final repository = AppRepository();
-    await repository.seedDefaults();
-
-    await tester.pumpWidget(
-      NexVoltApp(repository: repository, enableMaps: false),
-    );
-
-    await tester.pump(const Duration(milliseconds: 600));
-    expect(find.textContaining('Good Morning'), findsOneWidget);
-    expect(find.text('Map Explorer'), findsOneWidget);
+  testWidgets('NexVolt app loads', (WidgetTester tester) async {
+    await tester.pumpWidget(const NexVoltApp());
+    expect(find.text('NexVolt'), findsOneWidget);
+    expect(find.text('Start Booking'), findsOneWidget);
   });
 }
