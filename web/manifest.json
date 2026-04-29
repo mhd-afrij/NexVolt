@@ -1,6 +1,6 @@
 {
-    "name": "ev_charging_app",
-    "short_name": "ev_charging_app",
+    "name": "Nexvolt",
+    "short_name": "Nexvolt",
     "start_url": ".",
     "display": "standalone",
     "background_color": "#0175C2",

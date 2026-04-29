@@ -1,20 +1,20 @@
-// This is a basic Flutter widget test.
-//
-// To perform an interaction with a widget in your test, use the WidgetTester
-// utility in the flutter_test package. For example, you can send tap and scroll
-// gestures. You can also use WidgetTester to find child widgets in the widget
-// tree, read text, and verify that the values of widget properties are correct.
-
 import 'package:flutter_test/flutter_test.dart';
-
-import 'package:ev_charging_app/main.dart';
+import 'package:nexvolt/app.dart';
+import 'package:nexvolt/core/services/firestore_service.dart';
 
 void main() {
-  testWidgets('App starts smoke test', (WidgetTester tester) async {
-    // Build our app and trigger a frame.
-    await tester.pumpWidget(const MyApp());
+  testWidgets('Dashboard renders with profile greeting', (
+    WidgetTester tester,
+  ) async {
+    final repository = AppRepository();
+    await repository.seedDefaults();
 
-    // Verify that the app starts and shows the account screen.
-    expect(find.text('My Account'), findsOneWidget);
+    await tester.pumpWidget(
+      NexVoltApp(repository: repository, enableMaps: false),
+    );
+
+    await tester.pump(const Duration(milliseconds: 600));
+    expect(find.textContaining('Good Morning'), findsOneWidget);
+    expect(find.text('Map Explorer'), findsOneWidget);
   });
 }
