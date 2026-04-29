@@ -3,11 +3,15 @@
     "project_number": "19675782767",
     "project_id": "nexvolt-data",
     "storage_bucket": "nexvolt-data.firebasestorage.app"
+    "project_number": "545076806831",
+    "project_id": "gen-lang-client-0519574921",
+    "storage_bucket": "gen-lang-client-0519574921.firebasestorage.app"
   },
   "client": [
     {
       "client_info": {
         "mobilesdk_app_id": "1:19675782767:android:13b52ee62d174c271e779a",
+        "mobilesdk_app_id": "1:545076806831:android:3dbbd18246ca99448a005a",
         "android_client_info": {
           "package_name": "com.example.nexvolt"
         }
@@ -16,11 +20,33 @@
       "api_key": [
         {
           "current_key": "AIzaSyBQhgOg6XMmrYuSjk5VLFlOcI7nqcO3ZaQ"
+      "oauth_client": [
+        {
+          "client_id": "545076806831-ic19cgcohqdqgh1v7mti5bmb86t565bd.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBcmIPz8U1twAWOnOHrcV768VeRpEgt3oA"
         }
       ],
       "services": {
         "appinvite_service": {
           "other_platform_oauth_client": []
+          "other_platform_oauth_client": [
+            {
+              "client_id": "545076806831-ic19cgcohqdqgh1v7mti5bmb86t565bd.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "545076806831-q789juflgblaco3jnck7013viflp49tf.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.example.flutterApplication2"
+              }
+            }
+          ]
         }
       }
     }
