@@ -2,8 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
 
+import '../../constants/app_colors.dart';
 import '../models/vehicle.dart';
-import '../services/garage_repository.dart';
 import '../viewmodels/garage_providers.dart';
 import '../widgets/glass_container.dart';
 
@@ -44,8 +44,9 @@ class _AddDataScreenState extends ConsumerState<AddDataScreen> {
   double _timelineProgress = 1.0;
   String _maintenanceStatus = 'Upcoming';
 
-  String? _statusMessage;
-  bool _isSaving = false;
+  // TODO: Remove unused _statusMessage field
+// bool _statusMessage = false;
+bool _isSaving = false;
 
   DateTime _timelineDate = DateTime.now();
   DateTime _distanceDate = DateTime.now();
@@ -84,7 +85,7 @@ class _AddDataScreenState extends ConsumerState<AddDataScreen> {
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
         content: Text(message),
-        backgroundColor: success ? const Color(0xFF00D1B2) : Colors.redAccent,
+        backgroundColor: success ? AppColors.snackBarSuccess : AppColors.snackBarError,
       ),
     );
   }
@@ -95,19 +96,19 @@ class _AddDataScreenState extends ConsumerState<AddDataScreen> {
       initialDate: initialDate,
       firstDate: DateTime(2000),
       lastDate: DateTime(2100),
-      builder: (context, child) {
-        return Theme(
-          data: Theme.of(context).copyWith(
-            colorScheme: const ColorScheme.dark(
-              primary: Color(0xFF00D1B2),
-              onPrimary: Colors.white,
-              surface: Color(0xFF1A1A1A),
-              onSurface: Colors.white,
+        builder: (context, child) {
+          return Theme(
+            data: Theme.of(context).copyWith(
+              colorScheme: ColorScheme.dark(
+                primary: AppColors.accent,
+                onPrimary: AppColors.textPrimary,
+                surface: AppColors.surface,
+                onSurface: AppColors.textPrimary,
+              ),
             ),
-          ),
-          child: child!,
-        );
-      },
+            child: child!,
+          );
+        },
     );
     if (selected != null) {
       onSelected(selected);
@@ -253,19 +254,19 @@ class _AddDataScreenState extends ConsumerState<AddDataScreen> {
     return Scaffold(
       appBar: AppBar(
         title: const Text('Add Data to Firebase'),
-        backgroundColor: Colors.transparent,
+        backgroundColor: AppColors.transparent,
         elevation: 0,
       ),
-      backgroundColor: const Color(0xFF0F0F0F),
+      backgroundColor: AppColors.background,
       body: vehiclesAsync.when(
         data: (vehicles) => DefaultTabController(
           length: 4,
           child: Column(
             children: [
               const TabBar(
-                indicatorColor: Color(0xFF00D1B2),
-                labelColor: Color(0xFF00D1B2),
-                unselectedLabelColor: Colors.white54,
+                indicatorColor: AppColors.accent,
+                labelColor: AppColors.accent,
+                unselectedLabelColor: AppColors.textMuted,
                 tabs: [
                   Tab(text: 'Vehicle'),
                   Tab(text: 'Timeline'),
@@ -286,8 +287,8 @@ class _AddDataScreenState extends ConsumerState<AddDataScreen> {
             ],
           ),
         ),
-        loading: () => const Center(child: CircularProgressIndicator(color: Color(0xFF00D1B2))),
-        error: (error, stack) => Center(child: Text('Error loading vehicles: $error', style: const TextStyle(color: Colors.red))),
+        loading: () => const Center(child: CircularProgressIndicator(color: AppColors.accent)),
+        error: (error, stack) => Center(child: Text('Error loading vehicles: $error', style: const TextStyle(color: AppColors.error))),
       ),
     );
   }
@@ -302,7 +303,7 @@ class _AddDataScreenState extends ConsumerState<AddDataScreen> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
-              const Text('Add New Vehicle', style: TextStyle(color: Colors.white, fontSize: 20, fontWeight: FontWeight.bold)),
+              const Text('Add New Vehicle', style: TextStyle(color: AppColors.textPrimary, fontSize: 20, fontWeight: FontWeight.bold)),
               const SizedBox(height: 16),
               _buildTextField(controller: _nameController, label: 'Vehicle Name', validator: _requiredValidator),
               _buildTextField(controller: _plateNumberController, label: 'Plate Number', validator: _requiredValidator),
@@ -311,9 +312,9 @@ class _AddDataScreenState extends ConsumerState<AddDataScreen> {
               _buildTextField(controller: _imageUrlController, label: 'Image URL (optional)', keyboardType: TextInputType.url),
               const SizedBox(height: 12),
               ElevatedButton(
-                style: ElevatedButton.styleFrom(backgroundColor: const Color(0xFF00D1B2)),
+                style: ElevatedButton.styleFrom(backgroundColor: AppColors.accent),
                 onPressed: _isSaving ? null : _submitVehicle,
-                child: _isSaving ? const CircularProgressIndicator(color: Colors.white) : const Text('Save Vehicle'),
+                child: _isSaving ? const CircularProgressIndicator(color: AppColors.textPrimary) : const Text('Save Vehicle'),
               ),
             ],
           ),
@@ -332,7 +333,7 @@ class _AddDataScreenState extends ConsumerState<AddDataScreen> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
-              const Text('Add Timeline Event', style: TextStyle(color: Colors.white, fontSize: 20, fontWeight: FontWeight.bold)),
+              const Text('Add Timeline Event', style: TextStyle(color: AppColors.textPrimary, fontSize: 20, fontWeight: FontWeight.bold)),
               const SizedBox(height: 16),
               DropdownButtonFormField<String>(
                 initialValue: _selectedVehicleIdForTimeline,
@@ -367,9 +368,9 @@ class _AddDataScreenState extends ConsumerState<AddDataScreen> {
               _buildSliderField(label: 'Progress', value: _timelineProgress, onChanged: (value) => setState(() => _timelineProgress = value)),
               const SizedBox(height: 16),
               ElevatedButton(
-                style: ElevatedButton.styleFrom(backgroundColor: const Color(0xFF00D1B2)),
+                style: ElevatedButton.styleFrom(backgroundColor: AppColors.accent),
                 onPressed: _isSaving ? null : _submitTimeline,
-                child: _isSaving ? const CircularProgressIndicator(color: Colors.white) : const Text('Save Timeline Event'),
+                child: _isSaving ? const CircularProgressIndicator(color: AppColors.textPrimary) : const Text('Save Timeline Event'),
               ),
             ],
           ),
@@ -388,7 +389,7 @@ class _AddDataScreenState extends ConsumerState<AddDataScreen> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
-              const Text('Add Distance Log', style: TextStyle(color: Colors.white, fontSize: 20, fontWeight: FontWeight.bold)),
+              const Text('Add Distance Log', style: TextStyle(color: AppColors.textPrimary, fontSize: 20, fontWeight: FontWeight.bold)),
               const SizedBox(height: 16),
               DropdownButtonFormField<String>(
                 initialValue: _selectedVehicleIdForDistance,
@@ -408,9 +409,9 @@ class _AddDataScreenState extends ConsumerState<AddDataScreen> {
               _buildTextField(controller: _distanceController, label: 'Distance (km)', keyboardType: TextInputType.number, validator: _requiredValidator),
               const SizedBox(height: 16),
               ElevatedButton(
-                style: ElevatedButton.styleFrom(backgroundColor: const Color(0xFF00D1B2)),
+                style: ElevatedButton.styleFrom(backgroundColor: AppColors.accent),
                 onPressed: _isSaving ? null : _submitDistance,
-                child: _isSaving ? const CircularProgressIndicator(color: Colors.white) : const Text('Save Distance Log'),
+                child: _isSaving ? const CircularProgressIndicator(color: AppColors.textPrimary) : const Text('Save Distance Log'),
               ),
             ],
           ),
@@ -429,7 +430,7 @@ class _AddDataScreenState extends ConsumerState<AddDataScreen> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
-              const Text('Add Maintenance Record', style: TextStyle(color: Colors.white, fontSize: 20, fontWeight: FontWeight.bold)),
+              const Text('Add Maintenance Record', style: TextStyle(color: AppColors.textPrimary, fontSize: 20, fontWeight: FontWeight.bold)),
               const SizedBox(height: 16),
               DropdownButtonFormField<String>(
                 initialValue: _selectedVehicleIdForMaintenance,
@@ -460,9 +461,9 @@ class _AddDataScreenState extends ConsumerState<AddDataScreen> {
               _buildDatePickerField(controller: _maintenanceDateController, label: 'Date', onTap: () => _pickDate(_maintenanceDateController, _maintenanceDate, (date) => _maintenanceDate = date)),
               const SizedBox(height: 16),
               ElevatedButton(
-                style: ElevatedButton.styleFrom(backgroundColor: const Color(0xFF00D1B2)),
+                style: ElevatedButton.styleFrom(backgroundColor: AppColors.accent),
                 onPressed: _isSaving ? null : _submitMaintenance,
-                child: _isSaving ? const CircularProgressIndicator(color: Colors.white) : const Text('Save Maintenance Record'),
+                child: _isSaving ? const CircularProgressIndicator(color: AppColors.textPrimary) : const Text('Save Maintenance Record'),
               ),
             ],
           ),
@@ -480,7 +481,7 @@ class _AddDataScreenState extends ConsumerState<AddDataScreen> {
     return TextFormField(
       controller: controller,
       keyboardType: keyboardType,
-      style: const TextStyle(color: Colors.white),
+      style: const TextStyle(color: AppColors.textPrimary),
       decoration: _buildDecoration(label),
       validator: validator,
     );
@@ -489,9 +490,9 @@ class _AddDataScreenState extends ConsumerState<AddDataScreen> {
   InputDecoration _buildDecoration(String label) {
     return InputDecoration(
       labelText: label,
-      labelStyle: const TextStyle(color: Colors.white70),
+      labelStyle: const TextStyle(color: AppColors.textSecondary),
       filled: true,
-      fillColor: const Color(0xFF141414),
+      fillColor: AppColors.inputFill,
       border: OutlineInputBorder(borderRadius: BorderRadius.circular(14), borderSide: BorderSide.none),
     );
   }
@@ -504,7 +505,7 @@ class _AddDataScreenState extends ConsumerState<AddDataScreen> {
     return TextFormField(
       controller: controller,
       readOnly: true,
-      style: const TextStyle(color: Colors.white),
+      style: const TextStyle(color: AppColors.textPrimary),
       decoration: _buildDecoration(label),
       onTap: onTap,
       validator: _requiredValidator,
@@ -519,17 +520,17 @@ class _AddDataScreenState extends ConsumerState<AddDataScreen> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(label, style: const TextStyle(color: Colors.white70)),
+        Text(label, style: const TextStyle(color: AppColors.textSecondary)),
         Slider(
           value: value,
           onChanged: onChanged,
           min: 0,
           max: 1,
           divisions: 20,
-          activeColor: const Color(0xFF00D1B2),
-          inactiveColor: Colors.white24,
+          activeColor: AppColors.accent,
+          inactiveColor: AppColors.divider,
         ),
-        Text('${(value * 100).toStringAsFixed(0)}%', style: const TextStyle(color: Colors.white)),
+        Text('${(value * 100).toStringAsFixed(0)}%', style: const TextStyle(color: AppColors.textPrimary)),
       ],
     );
   }

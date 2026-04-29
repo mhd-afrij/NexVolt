@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:lucide_icons/lucide_icons.dart';
+
+import '../../constants/app_colors.dart';
 import '../models/vehicle.dart';
 import '../viewmodels/garage_providers.dart';
 import '../widgets/vehicle_card.dart';
@@ -15,14 +17,14 @@ class GarageDashboardScreen extends ConsumerWidget {
     final vehiclesAsyncValue = ref.watch(vehiclesProvider);
 
     return Scaffold(
-      backgroundColor: const Color(0xFF0F0F0F),
+      backgroundColor: AppColors.background,
       appBar: AppBar(
-        backgroundColor: Colors.transparent,
+        backgroundColor: AppColors.transparent,
         elevation: 0,
         title: const Text(
           'My Vehicles',
           style: TextStyle(
-            color: Colors.white,
+            color: AppColors.textPrimary,
             fontWeight: FontWeight.bold,
             fontSize: 24,
             letterSpacing: -0.5,
@@ -32,7 +34,7 @@ class GarageDashboardScreen extends ConsumerWidget {
           IconButton(
             icon: const Icon(
               LucideIcons.slidersHorizontal,
-              color: Colors.white,
+              color: AppColors.textSecondary,
             ),
             onPressed: () {
               // Show filter
@@ -46,13 +48,13 @@ class GarageDashboardScreen extends ConsumerWidget {
             return const Center(
               child: Text(
                 'No vehicles found in your garage.',
-                style: TextStyle(color: Colors.white54, fontSize: 16),
+                style: TextStyle(color: AppColors.textSecondary, fontSize: 16),
               ),
             );
           }
           return RefreshIndicator(
-            color: const Color(0xFF00D1B2),
-            backgroundColor: const Color(0xFF1A1A1A),
+            color: AppColors.accent,
+            backgroundColor: AppColors.surface,
             onRefresh: () async {
               return ref.refresh(vehiclesProvider.future);
             },
@@ -106,24 +108,24 @@ class GarageDashboardScreen extends ConsumerWidget {
           );
         },
         loading: () => const Center(
-          child: CircularProgressIndicator(color: Color(0xFF00D1B2)),
+          child: CircularProgressIndicator(color: AppColors.accent),
         ),
         error: (error, stack) => Center(
           child: Text(
             'Error: $error',
-            style: const TextStyle(color: Colors.red),
+            style: const TextStyle(color: AppColors.error),
           ),
         ),
       ),
       floatingActionButton: FloatingActionButton(
-        backgroundColor: const Color(0xFF00D1B2),
+        backgroundColor: AppColors.accent,
         onPressed: () {
           Navigator.push(
             context,
             MaterialPageRoute(builder: (context) => const AddDataScreen()),
           );
         },
-        child: const Icon(LucideIcons.plus, color: Colors.white, size: 28),
+        child: const Icon(LucideIcons.plus, color: AppColors.textPrimary, size: 28),
       ),
       floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
       /* Bottom Navigation omitted for scope, in parent module */
@@ -148,7 +150,7 @@ class GarageDashboardScreen extends ConsumerWidget {
     await showModalBottomSheet(
       context: context,
       isScrollControlled: true,
-      backgroundColor: const Color(0xFF121212),
+      backgroundColor: AppColors.surface,
       shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
       ),
@@ -168,7 +170,7 @@ class GarageDashboardScreen extends ConsumerWidget {
                 const Text(
                   'Edit Vehicle',
                   style: TextStyle(
-                    color: Colors.white,
+                    color: AppColors.textPrimary,
                     fontSize: 20,
                     fontWeight: FontWeight.bold,
                   ),
@@ -180,7 +182,7 @@ class GarageDashboardScreen extends ConsumerWidget {
                     children: [
                       TextFormField(
                         controller: nameController,
-                        style: const TextStyle(color: Colors.white),
+                        style: const TextStyle(color: AppColors.textPrimary),
                         decoration: const InputDecoration(
                           labelText: 'Vehicle Name',
                         ),
@@ -192,7 +194,7 @@ class GarageDashboardScreen extends ConsumerWidget {
                       const SizedBox(height: 12),
                       TextFormField(
                         controller: plateController,
-                        style: const TextStyle(color: Colors.white),
+                        style: const TextStyle(color: AppColors.textPrimary),
                         decoration: const InputDecoration(
                           labelText: 'Plate Number',
                         ),
@@ -205,7 +207,7 @@ class GarageDashboardScreen extends ConsumerWidget {
                       TextFormField(
                         controller: batteryController,
                         keyboardType: TextInputType.number,
-                        style: const TextStyle(color: Colors.white),
+                        style: const TextStyle(color: AppColors.textPrimary),
                         decoration: const InputDecoration(
                           labelText: 'Battery %',
                         ),
@@ -220,7 +222,7 @@ class GarageDashboardScreen extends ConsumerWidget {
                       const SizedBox(height: 12),
                       TextFormField(
                         controller: locationController,
-                        style: const TextStyle(color: Colors.white),
+                        style: const TextStyle(color: AppColors.textPrimary),
                         decoration: const InputDecoration(
                           labelText: 'Location',
                         ),
@@ -232,7 +234,7 @@ class GarageDashboardScreen extends ConsumerWidget {
                       const SizedBox(height: 12),
                       TextFormField(
                         controller: imageUrlController,
-                        style: const TextStyle(color: Colors.white),
+                        style: const TextStyle(color: AppColors.textPrimary),
                         decoration: const InputDecoration(
                           labelText: 'Image URL',
                         ),
@@ -246,7 +248,7 @@ class GarageDashboardScreen extends ConsumerWidget {
                     Expanded(
                       child: ElevatedButton(
                         style: ElevatedButton.styleFrom(
-                          backgroundColor: const Color(0xFF00D1B2),
+                          backgroundColor: AppColors.accent,
                         ),
                         onPressed: () async {
                           if (!formKey.currentState!.validate()) return;
@@ -261,13 +263,16 @@ class GarageDashboardScreen extends ConsumerWidget {
                             location: locationController.text.trim(),
                             imageUrl: imageUrlController.text.trim(),
                           );
-                          ref.invalidate(vehiclesProvider);
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            const SnackBar(
-                              content: Text('Vehicle updated successfully.'),
-                              backgroundColor: Color(0xFF00D1B2),
-                            ),
-                          );
+                            if (!context.mounted) return;
+                            ref.invalidate(vehiclesProvider);
+                            if (!context.mounted) return;
+                            final messenger = ScaffoldMessenger.of(context);
+                            messenger.showSnackBar(
+                              const SnackBar(
+                                content: Text('Vehicle updated successfully.'),
+                                backgroundColor: AppColors.snackBarSuccess,
+                              ),
+                            );
                           Navigator.pop(context);
                         },
                         child: const Text('Save Changes'),
@@ -277,48 +282,48 @@ class GarageDashboardScreen extends ConsumerWidget {
                     Expanded(
                       child: OutlinedButton(
                         style: OutlinedButton.styleFrom(
-                          side: const BorderSide(color: Colors.redAccent),
-                          foregroundColor: Colors.redAccent,
+                          side: const BorderSide(color: AppColors.error),
+                          foregroundColor: AppColors.error,
                         ),
                         onPressed: () async {
                           final confirmed = await showDialog<bool>(
                             context: context,
                             builder: (context) {
                               return AlertDialog(
-                                backgroundColor: const Color(0xFF121212),
+                                backgroundColor: AppColors.surface,
                                 title: const Text(
                                   'Delete vehicle?',
-                                  style: TextStyle(color: Colors.white),
+                                  style: TextStyle(color: AppColors.textPrimary),
                                 ),
                                 content: const Text(
                                   'This will delete the vehicle from Firebase.',
-                                  style: TextStyle(color: Colors.white70),
+                                  style: TextStyle(color: AppColors.textSecondary),
                                 ),
                                 actions: [
                                   TextButton(
-                                    onPressed: () =>
-                                        Navigator.pop(context, false),
+                                    onPressed: () => Navigator.pop(context, false),
                                     child: const Text('Cancel'),
                                   ),
                                   TextButton(
-                                    onPressed: () =>
-                                        Navigator.pop(context, true),
+                                    onPressed: () => Navigator.pop(context, true),
                                     child: const Text(
                                       'Delete',
-                                      style: TextStyle(color: Colors.redAccent),
+                                      style: TextStyle(color: AppColors.error),
                                     ),
                                   ),
                                 ],
                               );
                             },
                           );
-                          if (confirmed != true) return;
+                           if (confirmed != true) return;
                           await repo.deleteVehicle(vehicle.id);
                           ref.invalidate(vehiclesProvider);
-                          ScaffoldMessenger.of(context).showSnackBar(
+                          if (!context.mounted) return;
+                          final messenger = ScaffoldMessenger.of(context);
+                          messenger.showSnackBar(
                             const SnackBar(
                               content: Text('Vehicle deleted.'),
-                              backgroundColor: Colors.redAccent,
+                              backgroundColor: AppColors.snackBarError,
                             ),
                           );
                           Navigator.pop(context);
@@ -347,14 +352,14 @@ class GarageDashboardScreen extends ConsumerWidget {
       context: context,
       builder: (context) {
         return AlertDialog(
-          backgroundColor: const Color(0xFF121212),
+          backgroundColor: AppColors.surface,
           title: const Text(
             'Delete vehicle?',
-            style: TextStyle(color: Colors.white),
+            style: TextStyle(color: AppColors.textPrimary),
           ),
           content: const Text(
             'This will delete the vehicle from Firebase.',
-            style: TextStyle(color: Colors.white70),
+            style: TextStyle(color: AppColors.textSecondary),
           ),
           actions: [
             TextButton(
@@ -365,7 +370,7 @@ class GarageDashboardScreen extends ConsumerWidget {
               onPressed: () => Navigator.pop(context, true),
               child: const Text(
                 'Delete',
-                style: TextStyle(color: Colors.redAccent),
+                style: TextStyle(color: AppColors.error),
               ),
             ),
           ],
@@ -375,10 +380,12 @@ class GarageDashboardScreen extends ConsumerWidget {
     if (confirmed != true) return;
     await repo.deleteVehicle(vehicle.id);
     ref.invalidate(vehiclesProvider);
-    ScaffoldMessenger.of(context).showSnackBar(
+    if (!context.mounted) return;
+    final messenger = ScaffoldMessenger.of(context);
+    messenger.showSnackBar(
       const SnackBar(
         content: Text('Vehicle deleted.'),
-        backgroundColor: Colors.redAccent,
+        backgroundColor: AppColors.snackBarError,
       ),
     );
   }

@@ -7,6 +7,7 @@ import '../viewmodels/garage_providers.dart';
 import '../widgets/glass_container.dart';
 import '../widgets/timeline_item.dart';
 import '../widgets/chart_widget.dart';
+import '../../constants/app_colors.dart';
 
 class VehicleDetailsScreen extends ConsumerWidget {
   const VehicleDetailsScreen({super.key});
@@ -17,11 +18,11 @@ class VehicleDetailsScreen extends ConsumerWidget {
 
     if (vehicle == null) {
       return const Scaffold(
-        backgroundColor: Color(0xFF0F0F0F),
+        backgroundColor: AppColors.background,
         body: Center(
           child: Text(
             "Vehicle not found",
-            style: TextStyle(color: Colors.white),
+            style: TextStyle(color: AppColors.textPrimary),
           ),
         ),
       );
@@ -30,18 +31,18 @@ class VehicleDetailsScreen extends ConsumerWidget {
     return DefaultTabController(
       length: 4,
       child: Scaffold(
-        backgroundColor: const Color(0xFF0F0F0F),
+        backgroundColor: AppColors.background,
         appBar: AppBar(
-          backgroundColor: Colors.transparent,
+          backgroundColor: AppColors.transparent,
           elevation: 0,
           leading: IconButton(
-            icon: const Icon(LucideIcons.arrowLeft, color: Colors.white),
+            icon: const Icon(LucideIcons.arrowLeft, color: AppColors.textPrimary),
             onPressed: () => Navigator.pop(context),
           ),
           title: Text(
             vehicle.name,
             style: const TextStyle(
-              color: Colors.white,
+              color: AppColors.textPrimary,
               fontWeight: FontWeight.bold,
             ),
           ),
@@ -61,9 +62,9 @@ class VehicleDetailsScreen extends ConsumerWidget {
                         vehicle.imageUrl,
                         height: 120,
                         fit: BoxFit.contain,
-                        errorBuilder: (context, _, _) => const Icon(
+                        errorBuilder: (context, error, stackTrace) => const Icon(
                           LucideIcons.car,
-                          color: Colors.white54,
+                          color: AppColors.textMuted,
                           size: 80,
                         ),
                       ),
@@ -78,7 +79,7 @@ class VehicleDetailsScreen extends ConsumerWidget {
                             Text(
                               vehicle.plateNumber,
                               style: const TextStyle(
-                                color: Colors.white70,
+                                color: AppColors.textSecondary,
                                 fontWeight: FontWeight.w600,
                                 letterSpacing: 1.5,
                               ),
@@ -88,14 +89,14 @@ class VehicleDetailsScreen extends ConsumerWidget {
                               children: [
                                 const Icon(
                                   LucideIcons.mapPin,
-                                  color: Colors.white54,
+                                  color: AppColors.textMuted,
                                   size: 14,
                                 ),
                                 const SizedBox(width: 4),
                                 Text(
                                   vehicle.location,
                                   style: const TextStyle(
-                                    color: Colors.white54,
+                                    color: AppColors.textMuted,
                                     fontSize: 12,
                                   ),
                                 ),
@@ -110,13 +111,13 @@ class VehicleDetailsScreen extends ConsumerWidget {
                           ),
                           decoration: BoxDecoration(
                             color: vehicle.battery > 50
-                                ? const Color(0xFF00D1B2).withOpacity(0.2)
-                                : Colors.orange.withOpacity(0.2),
+                                ? AppColors.accent.withAlpha(51)
+                                : AppColors.warning.withAlpha(51),
                             borderRadius: BorderRadius.circular(16),
                             border: Border.all(
                               color: vehicle.battery > 50
-                                  ? const Color(0xFF00D1B2)
-                                  : Colors.orange,
+                                  ? AppColors.accent
+                                  : AppColors.warning,
                             ),
                           ),
                           child: Row(
@@ -124,8 +125,8 @@ class VehicleDetailsScreen extends ConsumerWidget {
                               Icon(
                                 LucideIcons.batteryCharging,
                                 color: vehicle.battery > 50
-                                    ? const Color(0xFF00D1B2)
-                                    : Colors.orange,
+                                    ? AppColors.accent
+                                    : AppColors.warning,
                                 size: 18,
                               ),
                               const SizedBox(width: 4),
@@ -133,8 +134,8 @@ class VehicleDetailsScreen extends ConsumerWidget {
                                 '${vehicle.battery.toStringAsFixed(0)}%',
                                 style: TextStyle(
                                   color: vehicle.battery > 50
-                                      ? const Color(0xFF00D1B2)
-                                      : Colors.orange,
+                                      ? AppColors.accent
+                                      : AppColors.warning,
                                   fontWeight: FontWeight.bold,
                                 ),
                               ),
@@ -151,9 +152,9 @@ class VehicleDetailsScreen extends ConsumerWidget {
             // Tabs
             const TabBar(
               isScrollable: true,
-              labelColor: Color(0xFF00D1B2),
-              unselectedLabelColor: Colors.white54,
-              indicatorColor: Color(0xFF00D1B2),
+              labelColor: AppColors.accent,
+              unselectedLabelColor: AppColors.textMuted,
+              indicatorColor: AppColors.accent,
               indicatorWeight: 3,
               labelStyle: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
               tabs: [
@@ -192,10 +193,11 @@ class _TimelineTab extends ConsumerWidget {
 
     return eventsAsync.when(
       data: (events) {
-        if (events.isEmpty)
+        if (events.isEmpty) {
           return const Center(
-            child: Text("No events", style: TextStyle(color: Colors.white54)),
+            child: Text("No events", style: TextStyle(color: AppColors.textMuted)),
           );
+        }
         return ListView.builder(
           padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
           itemCount: events.length,
@@ -208,22 +210,22 @@ class _TimelineTab extends ConsumerWidget {
               background: Container(
                 alignment: Alignment.centerRight,
                 padding: const EdgeInsets.only(right: 20),
-                color: Colors.redAccent,
-                child: const Icon(LucideIcons.trash2, color: Colors.white),
+                color: AppColors.error,
+                child: const Icon(LucideIcons.trash2, color: AppColors.textPrimary),
               ),
               confirmDismiss: (_) async {
                 return await showDialog<bool>(
                   context: context,
                   builder: (context) {
                     return AlertDialog(
-                      backgroundColor: const Color(0xFF121212),
+                      backgroundColor: AppColors.surface,
                       title: const Text(
                         'Delete event?',
-                        style: TextStyle(color: Colors.white),
+                        style: TextStyle(color: AppColors.textPrimary),
                       ),
                       content: const Text(
-                        'This will remove the timeline event from Firebase.',
-                        style: TextStyle(color: Colors.white70),
+                        'This will permanently delete the timeline event.',
+                        style: TextStyle(color: AppColors.textSecondary),
                       ),
                       actions: [
                         TextButton(
@@ -234,7 +236,7 @@ class _TimelineTab extends ConsumerWidget {
                           onPressed: () => Navigator.pop(context, true),
                           child: const Text(
                             'Delete',
-                            style: TextStyle(color: Colors.redAccent),
+                            style: TextStyle(color: AppColors.error),
                           ),
                         ),
                       ],
@@ -245,10 +247,11 @@ class _TimelineTab extends ConsumerWidget {
               onDismissed: (_) async {
                 await repo.deleteTimelineEvent(event.id);
                 ref.invalidate(timelineEventsProvider(vehicleId));
+                if (!context.mounted) return;
                 ScaffoldMessenger.of(context).showSnackBar(
                   const SnackBar(
                     content: Text('Timeline event deleted.'),
-                    backgroundColor: Colors.redAccent,
+                    backgroundColor: AppColors.snackBarError,
                   ),
                 );
               },
@@ -261,12 +264,12 @@ class _TimelineTab extends ConsumerWidget {
         );
       },
       loading: () => const Center(
-        child: CircularProgressIndicator(color: Color(0xFF00D1B2)),
+        child: CircularProgressIndicator(color: AppColors.accent),
       ),
       error: (e, st) => Center(
         child: Text(
           "Error loading timeline",
-          style: TextStyle(color: Colors.red),
+          style: TextStyle(color: AppColors.error),
         ),
       ),
     );
@@ -279,7 +282,6 @@ class _ReportsTab extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // Scaffold UI Mock for Reports
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 16),
       child: Column(
@@ -292,17 +294,17 @@ class _ReportsTab extends StatelessWidget {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: const [
-                      Icon(LucideIcons.activity, color: Colors.blueAccent),
+                      Icon(LucideIcons.activity, color: AppColors.accent),
                       SizedBox(height: 8),
                       Text(
                         "Total Trips",
-                        style: TextStyle(color: Colors.white54),
+                        style: TextStyle(color: AppColors.textMuted),
                       ),
                       SizedBox(height: 4),
                       Text(
                         "142",
                         style: TextStyle(
-                          color: Colors.white,
+                          color: AppColors.textPrimary,
                           fontSize: 24,
                           fontWeight: FontWeight.bold,
                         ),
@@ -318,17 +320,17 @@ class _ReportsTab extends StatelessWidget {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: const [
-                      Icon(LucideIcons.zap, color: Colors.orange),
+                      Icon(LucideIcons.zap, color: AppColors.warning),
                       SizedBox(height: 8),
                       Text(
                         "Energy Usage",
-                        style: TextStyle(color: Colors.white54),
+                        style: TextStyle(color: AppColors.textMuted),
                       ),
                       SizedBox(height: 4),
                       Text(
                         "384 kWh",
                         style: TextStyle(
-                          color: Colors.white,
+                          color: AppColors.textPrimary,
                           fontSize: 24,
                           fontWeight: FontWeight.bold,
                         ),
@@ -348,7 +350,7 @@ class _ReportsTab extends StatelessWidget {
                 const Text(
                   "Efficiency Score",
                   style: TextStyle(
-                    color: Colors.white,
+                    color: AppColors.textPrimary,
                     fontSize: 18,
                     fontWeight: FontWeight.bold,
                   ),
@@ -356,9 +358,9 @@ class _ReportsTab extends StatelessWidget {
                 const SizedBox(height: 16),
                 LinearProgressIndicator(
                   value: 0.85,
-                  backgroundColor: Colors.white10,
+                  backgroundColor: AppColors.surfaceLight,
                   valueColor: const AlwaysStoppedAnimation<Color>(
-                    Color(0xFF00D1B2),
+                    AppColors.accent,
                   ),
                   minHeight: 12,
                   borderRadius: BorderRadius.circular(6),
@@ -366,7 +368,7 @@ class _ReportsTab extends StatelessWidget {
                 const SizedBox(height: 8),
                 const Text(
                   "Great! Your efficiency is above average.",
-                  style: TextStyle(color: Colors.white54, fontSize: 12),
+                  style: TextStyle(color: AppColors.textMuted, fontSize: 12),
                 ),
               ],
             ),
@@ -405,13 +407,13 @@ class _DistanceTab extends ConsumerWidget {
                       children: [
                         const Text(
                           "Total Distance (7 Days)",
-                          style: TextStyle(color: Colors.white54),
+                          style: TextStyle(color: AppColors.textMuted),
                         ),
                         const SizedBox(height: 4),
                         Text(
                           "${totalDistance.toStringAsFixed(1)} km",
                           style: const TextStyle(
-                            color: Colors.white,
+                            color: AppColors.textPrimary,
                             fontSize: 24,
                             fontWeight: FontWeight.bold,
                           ),
@@ -422,11 +424,11 @@ class _DistanceTab extends ConsumerWidget {
                       padding: const EdgeInsets.all(12),
                       decoration: BoxDecoration(
                         shape: BoxShape.circle,
-                        color: const Color(0xFF00D1B2).withOpacity(0.2),
+                        color: AppColors.accent.withAlpha(51),
                       ),
                       child: const Icon(
                         LucideIcons.map,
-                        color: Color(0xFF00D1B2),
+                        color: AppColors.accent,
                       ),
                     ),
                   ],
@@ -438,7 +440,7 @@ class _DistanceTab extends ConsumerWidget {
                 child: Text(
                   "Daily Logs",
                   style: TextStyle(
-                    color: Colors.white,
+                    color: AppColors.textPrimary,
                     fontSize: 18,
                     fontWeight: FontWeight.bold,
                   ),
@@ -457,12 +459,12 @@ class _DistanceTab extends ConsumerWidget {
         );
       },
       loading: () => const Center(
-        child: CircularProgressIndicator(color: Color(0xFF00D1B2)),
+        child: CircularProgressIndicator(color: AppColors.accent),
       ),
       error: (e, st) => Center(
         child: Text(
           "Error loading distances",
-          style: TextStyle(color: Colors.red),
+          style: TextStyle(color: AppColors.error),
         ),
       ),
     );
@@ -482,7 +484,7 @@ class _MaintenanceTab extends ConsumerWidget {
         return ListView.separated(
           padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
           itemCount: records.length,
-          separatorBuilder: (_, _) => const SizedBox(height: 12),
+          separatorBuilder: (a, b) => const SizedBox(height: 12),
           itemBuilder: (context, index) {
             final record = records[index];
             final repo = ref.read(garageRepositoryProvider);
@@ -494,22 +496,22 @@ class _MaintenanceTab extends ConsumerWidget {
               background: Container(
                 alignment: Alignment.centerRight,
                 padding: const EdgeInsets.only(right: 20),
-                color: Colors.redAccent,
-                child: const Icon(LucideIcons.trash2, color: Colors.white),
+                color: AppColors.error,
+                child: const Icon(LucideIcons.trash2, color: AppColors.textPrimary),
               ),
               confirmDismiss: (_) async {
                 return await showDialog<bool>(
                   context: context,
                   builder: (context) {
                     return AlertDialog(
-                      backgroundColor: const Color(0xFF121212),
+                      backgroundColor: AppColors.surface,
                       title: const Text(
                         'Delete maintenance record?',
-                        style: TextStyle(color: Colors.white),
+                        style: TextStyle(color: AppColors.textPrimary),
                       ),
                       content: const Text(
                         'This will remove the maintenance record from Firebase.',
-                        style: TextStyle(color: Colors.white70),
+                        style: TextStyle(color: AppColors.textSecondary),
                       ),
                       actions: [
                         TextButton(
@@ -520,7 +522,7 @@ class _MaintenanceTab extends ConsumerWidget {
                           onPressed: () => Navigator.pop(context, true),
                           child: const Text(
                             'Delete',
-                            style: TextStyle(color: Colors.redAccent),
+                            style: TextStyle(color: AppColors.error),
                           ),
                         ),
                       ],
@@ -531,10 +533,11 @@ class _MaintenanceTab extends ConsumerWidget {
               onDismissed: (_) async {
                 await repo.deleteMaintenanceRecord(record.id);
                 ref.invalidate(maintenanceRecordsProvider(vehicleId));
+                if (!context.mounted) return;
                 ScaffoldMessenger.of(context).showSnackBar(
                   const SnackBar(
                     content: Text('Maintenance record deleted.'),
-                    backgroundColor: Colors.redAccent,
+                    backgroundColor: AppColors.snackBarError,
                   ),
                 );
               },
@@ -547,15 +550,13 @@ class _MaintenanceTab extends ConsumerWidget {
                       height: 48,
                       decoration: BoxDecoration(
                         color: isUpcoming
-                            ? Colors.orange.withOpacity(0.2)
-                            : const Color(0xFF00D1B2).withOpacity(0.2),
+                            ? AppColors.warning.withAlpha(51)
+                            : AppColors.accent.withAlpha(51),
                         borderRadius: BorderRadius.circular(12),
                       ),
                       child: Icon(
                         LucideIcons.wrench,
-                        color: isUpcoming
-                            ? Colors.orange
-                            : const Color(0xFF00D1B2),
+                        color: isUpcoming ? AppColors.warning : AppColors.accent,
                       ),
                     ),
                     const SizedBox(width: 16),
@@ -566,7 +567,7 @@ class _MaintenanceTab extends ConsumerWidget {
                           Text(
                             record.title,
                             style: const TextStyle(
-                              color: Colors.white,
+                              color: AppColors.textPrimary,
                               fontSize: 16,
                               fontWeight: FontWeight.bold,
                             ),
@@ -575,7 +576,7 @@ class _MaintenanceTab extends ConsumerWidget {
                           Text(
                             DateFormat('MMMM d, yyyy').format(record.date),
                             style: const TextStyle(
-                              color: Colors.white54,
+                              color: AppColors.textMuted,
                               fontSize: 12,
                             ),
                           ),
@@ -590,17 +591,13 @@ class _MaintenanceTab extends ConsumerWidget {
                       decoration: BoxDecoration(
                         borderRadius: BorderRadius.circular(20),
                         border: Border.all(
-                          color: isUpcoming
-                              ? Colors.orange
-                              : const Color(0xFF00D1B2),
+                          color: isUpcoming ? AppColors.warning : AppColors.accent,
                         ),
                       ),
                       child: Text(
                         record.status,
                         style: TextStyle(
-                          color: isUpcoming
-                              ? Colors.orange
-                              : const Color(0xFF00D1B2),
+                          color: isUpcoming ? AppColors.warning : AppColors.accent,
                           fontSize: 12,
                           fontWeight: FontWeight.bold,
                         ),
@@ -614,12 +611,12 @@ class _MaintenanceTab extends ConsumerWidget {
         );
       },
       loading: () => const Center(
-        child: CircularProgressIndicator(color: Color(0xFF00D1B2)),
+        child: CircularProgressIndicator(color: AppColors.accent),
       ),
       error: (e, st) => Center(
         child: Text(
           "Error loading maintenance",
-          style: TextStyle(color: Colors.red),
+          style: TextStyle(color: AppColors.error),
         ),
       ),
     );
