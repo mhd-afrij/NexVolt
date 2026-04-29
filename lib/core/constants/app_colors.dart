@@ -1,63 +1,14 @@
 import 'package:flutter/material.dart';
 
 class AppColors {
-  AppColors._();
+  AppColors._(); 
 
-  // ═══════════════════════════════════════════════════════════════
-  // KINETIC CONDUIT PALETTE
-  // ═══════════════════════════════════════════════════════════════
+  // ── Primary Brand Colors ──────────────────────────────
+  static const Color emeraldGreen = Color(0xFF50C878);
+  static const Color evGreen = Color(0xFF28C741);
+  static const Color electricBlue = Color(0xFF0077FF);
 
-  // ── The Void Base (Background) ─────────────────────────────────
-  static const Color voidBase = Color(0xFF0A0E12);
-  static const Color surface = voidBase;
-  static const Color background = voidBase;
-
-  // ── Surface Hierarchy (Tonal Layering) ──────────────────────────
-  static const Color surfaceContainerLowest = Color(0xFF0D1117);
-  static const Color surfaceContainerLow = Color(0xFF111921);
-  static const Color surfaceContainer = Color(0xFF151D26);
-  static const Color surfaceContainerHigh = Color(0xFF1A222C);
-  static const Color surfaceContainerHighest = Color(0xFF1F2832);
-
-  // ── Electric Volt (Primary) ─────────────────────────────────────
-  static const Color primary = Color(0xFF39FF14);
-  static const Color primaryDim = Color(0xFF1A9922);
-  static const Color primaryContainer = Color(0xFF228B22);
-  static const Color onPrimary = Color(0xFF0A0E12);
-  static const Color onPrimaryContainer = primary;
-
-  // ── Pulse Cyan (Secondary) ─────────────────────────────────────
-  static const Color secondary = Color(0xFF00F5FF);
-  static const Color secondaryDim = Color(0xFF008B94);
-  static const Color secondaryContainer = Color(0xFF005F66);
-  static const Color onSecondary = voidBase;
-  static const Color onSecondaryContainer = secondary;
-
-  // ── Tertiary ────────────────────────────────────────────────────
-  static const Color tertiary = Color(0xFFB388FF);
-  static const Color onTertiary = voidBase;
-
-  // ── Error ───────────────────────────────────────────────────────
-  static const Color error = Color(0xFFFF5252);
-  static const Color onError = voidBase;
-  static const Color errorContainer = Color(0xFF4A1515);
-  static const Color onErrorContainer = error;
-
-  // ── On-Surface (Text Hierarchy) ─────────────────────────────────
-  static const Color onSurface = Color(0xFFE6EBF0);
-  static const Color onSurfaceVariant = Color(0xFF8B949E);
-  static const Color outline = Color(0xFF30363D);
-  static const Color outlineVariant = Color(0xFF21262D);
-
-  // ── Ghost Border (15% opacity for accessibility) ───────────────
-  static const Color ghostBorder = Color(0x26FFFFFF);
-  static const Color ghostBorderSecondary = Color(0x3300F5FF);
-
-  // ═══════════════════════════════════════════════════════════════
-  // GRADIENTS
-  // ═══════════════════════════════════════════════════════════════
-
-  // Primary CTA Gradient (Electric Volt → Green)
+  // ── Gradient (used on every screen background) ────────
   static const LinearGradient primaryGradient = LinearGradient(
     colors: [primary, primaryContainer],
     begin: Alignment.topLeft,
