@@ -1,697 +1,574 @@
 import 'package:flutter/material.dart';
-import 'app_colors.dart';
 
-// ==================== ANIMATIONS ====================
+import 'constants/app_colors.dart';
 
 class AppAnimations {
-  // Standard Duration
-  static const Duration standardDuration = Duration(milliseconds: 300);
-  static const Duration shortDuration = Duration(milliseconds: 150);
-  static const Duration longDuration = Duration(milliseconds: 500);
+  AppAnimations._();
 
-  // Curve Animations
-  static const Curve standardCurve = Curves.easeInOut;
-  static const Curve bounceCurve = Curves.elasticOut;
-  static const Curve smoothCurve = Curves.fastOutSlowIn;
-}
-
-// ==================== REUSABLE WIDGETS ====================
-
-/// Custom AppBar with consistent styling
-class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
-  final String title;
-  final List<Widget>? actions;
-  final VoidCallback? onMenuPressed;
-  final bool showMenu;
-
-  const CustomAppBar({
-    super.key,
-    required this.title,
-    this.actions,
-    this.onMenuPressed,
-    this.showMenu = true,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return AppBar(
-      backgroundColor: AppColors.darkBg,
-      elevation: 0,
-      title: Text(
-        title,
-        style: const TextStyle(
-          color: AppColors.textWhite,
-          fontSize: 18,
-          fontWeight: FontWeight.w600,
-        ),
-      ),
-      centerTitle: false,
-      actions: [
-        if (showMenu)
-          IconButton(
-            icon: const Icon(Icons.menu, color: AppColors.textWhite),
-            onPressed: onMenuPressed ?? () {},
+  // ── 1. ENERGY GRADIENT BUTTON ───────────────────────────────
+  /// The signature Electric Volt → Primary gradient button.
+  static Widget gradientButton({
+    required AnimationController controller,
+    required String text,
+    required VoidCallback? onTap,
+    bool isLoading = false,
+    double verticalPadding = 18,
+    double borderRadius = 12,
+    Widget? icon,
+  }) {
+    return AnimatedBuilder(
+      animation: controller,
+      builder: (context, child) {
+        return Container(
+          decoration: BoxDecoration(
+            gradient: AppColors.primaryGradient,
+            borderRadius: BorderRadius.circular(borderRadius),
+            boxShadow: [
+              BoxShadow(
+                color: AppColors.primary.withValues(alpha: 0.3),
+                blurRadius: 20,
+                offset: const Offset(0, 4),
+              ),
+            ],
           ),
-        ...?actions,
+          child: ElevatedButton(
+            onPressed: isLoading ? null : onTap,
+            style: ElevatedButton.styleFrom(
+              padding: EdgeInsets.symmetric(vertical: verticalPadding),
+              backgroundColor: Colors.transparent,
+              shadowColor: Colors.transparent,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(borderRadius),
+              ),
+            ),
+            child: isLoading
+                ? const SizedBox(
+                    height: 22,
+                    width: 22,
+                    child: CircularProgressIndicator(
+                      color: AppColors.onPrimary,
+                      strokeWidth: 2.5,
+                    ),
+                  )
+                : Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Text(
+                        text,
+                        style: const TextStyle(
+                          fontFamily: 'Manrope',
+                          fontSize: 16,
+                          fontWeight: FontWeight.w700,
+                          color: AppColors.onPrimary,
+                        ),
+                      ),
+                      if (icon != null) ...[const SizedBox(width: 8), icon],
+                    ],
+                  ),
+          ),
+        );
+      },
+    );
+  }
+
+  // ── 2. SPLASH FADE + SCALE ENTRANCE ────────────────────────
+  static Widget splashEntrance({
+    required AnimationController controller,
+    required Widget child,
+  }) {
+    final fadeAnim = Tween<double>(begin: 0.0, end: 1.0).animate(
+      CurvedAnimation(
+        parent: controller,
+        curve: const Interval(0.0, 0.6, curve: Curves.easeIn),
+      ),
+    );
+    final scaleAnim = Tween<double>(
+      begin: 0.5,
+      end: 1.0,
+    ).animate(CurvedAnimation(parent: controller, curve: Curves.elasticOut));
+    return AnimatedBuilder(
+      animation: controller,
+      builder: (context, childWidget) => FadeTransition(
+        opacity: fadeAnim,
+        child: ScaleTransition(scale: scaleAnim, child: child),
+      ),
+    );
+  }
+
+  // ── 3. SLIDE-UP PAGE TRANSITION ────────────────────────────
+  static PageRoute<T> slideUp<T>(Widget page) {
+    return PageRouteBuilder<T>(
+      pageBuilder: (context, animation, secondaryAnimation) => page,
+      transitionsBuilder: (context, animation, secondaryAnimation, child) {
+        final tween = Tween(
+          begin: const Offset(0, 1),
+          end: Offset.zero,
+        ).chain(CurveTween(curve: Curves.easeOutCubic));
+        return SlideTransition(position: animation.drive(tween), child: child);
+      },
+      transitionDuration: const Duration(milliseconds: 400),
+    );
+  }
+
+  // ── 4. FADE PAGE TRANSITION ────────────────────────────────
+  static PageRoute<T> fade<T>(Widget page) {
+    return PageRouteBuilder<T>(
+      pageBuilder: (context, animation, secondaryAnimation) => page,
+      transitionsBuilder: (context, animation, secondaryAnimation, child) =>
+          FadeTransition(opacity: animation, child: child),
+      transitionDuration: const Duration(milliseconds: 350),
+    );
+  }
+
+  // ── 5. SLIDE-RIGHT PAGE TRANSITION ────────────────────────
+  static PageRoute<T> slideRight<T>(Widget page) {
+    return PageRouteBuilder<T>(
+      pageBuilder: (context, animation, secondaryAnimation) => page,
+      transitionsBuilder: (context, animation, secondaryAnimation, child) {
+        final tween = Tween(
+          begin: const Offset(1, 0),
+          end: Offset.zero,
+        ).chain(CurveTween(curve: Curves.easeOutCubic));
+        return SlideTransition(position: animation.drive(tween), child: child);
+      },
+      transitionDuration: const Duration(milliseconds: 350),
+    );
+  }
+
+  // ── 6. VOID BACKGROUND (No gradient) ────────────────────────
+  /// The Void Base background - no gradient, just pure dark.
+  static Widget voidBackground({required Widget child}) {
+    return Container(
+      width: double.infinity,
+      height: double.infinity,
+      color: AppColors.surface,
+      child: child,
+    );
+  }
+
+  // ── 7. GLASS CARD CONTAINER ────────────────────────────────
+  /// The glassmorphic card with tonal depth.
+  static Widget glassCard({
+    required Widget child,
+    EdgeInsets padding = const EdgeInsets.all(20),
+    Color? backgroundColor,
+    double borderRadius = 16,
+  }) {
+    return Container(
+      padding: padding,
+      decoration: BoxDecoration(
+        color: backgroundColor ?? AppColors.surfaceContainerLow,
+        borderRadius: BorderRadius.circular(borderRadius),
+        border: Border.all(color: AppColors.ghostBorder, width: 1),
+      ),
+      child: child,
+    );
+  }
+
+  // ── 8. ANIMATED STEP INDICATOR DOTS ────────────────────────
+  static Widget stepIndicator({
+    required int currentStep,
+    required int totalSteps,
+  }) {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.center,
+      children: List.generate(totalSteps, (i) {
+        final isActive = i == currentStep;
+        final isDone = i < currentStep;
+        return AnimatedContainer(
+          duration: const Duration(milliseconds: 300),
+          curve: Curves.easeInOut,
+          margin: const EdgeInsets.symmetric(horizontal: 4),
+          width: isActive ? 28 : 10,
+          height: 10,
+          decoration: BoxDecoration(
+            color: isActive
+                ? AppColors.stepActive
+                : isDone
+                ? AppColors.stepDone
+                : AppColors.stepInactive,
+            borderRadius: BorderRadius.circular(5),
+          ),
+        );
+      }),
+    );
+  }
+
+  // ── 9. PAGE INDICATOR DOTS ─────────────────────────────────
+  static Widget pageIndicator({
+    required int currentPage,
+    required int totalPages,
+  }) {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.center,
+      children: List.generate(totalPages, (i) {
+        return AnimatedContainer(
+          duration: const Duration(milliseconds: 300),
+          margin: const EdgeInsets.symmetric(horizontal: 5),
+          height: 8,
+          width: currentPage == i ? 22 : 8,
+          decoration: BoxDecoration(
+            color: currentPage == i
+                ? AppColors.primary
+                : AppColors.onSurfaceVariant,
+            borderRadius: BorderRadius.circular(20),
+          ),
+        );
+      }),
+    );
+  }
+
+  // ── 10. PULSING LOADING INDICATOR ──────────────────────────
+  static Widget brandedLoader({String label = 'Initializing...'}) {
+    return Column(
+      mainAxisAlignment: MainAxisAlignment.center,
+      children: [
+        _PulseIndicator(size: 60),
+        const SizedBox(height: 20),
+        ShaderMask(
+          shaderCallback: (bounds) =>
+              AppColors.primaryGradient.createShader(bounds),
+          child: const Text(
+            'NexVolt',
+            style: TextStyle(
+              fontFamily: 'Manrope',
+              fontSize: 28,
+              fontWeight: FontWeight.w800,
+              letterSpacing: 1.2,
+              color: Colors.white,
+            ),
+          ),
+        ),
+        const SizedBox(height: 40),
+        _PulseIndicator(size: 32),
+        const SizedBox(height: 16),
+        Text(
+          label,
+          style: const TextStyle(
+            fontFamily: 'Public Sans',
+            color: AppColors.onSurfaceVariant,
+            fontSize: 14,
+          ),
+        ),
       ],
     );
   }
 
-  @override
-  Size get preferredSize => const Size.fromHeight(56);
-}
-
-/// Custom Button with consistent styling
-class CustomButton extends StatelessWidget {
-  final String text;
-  final VoidCallback onPressed;
-  final bool isOutlined;
-  final bool isLoading;
-  final Color? backgroundColor;
-  final Color? textColor;
-  final double? width;
-  final double height;
-  final IconData? icon;
-
-  const CustomButton({
-    super.key,
-    required this.text,
-    required this.onPressed,
-    this.isOutlined = false,
-    this.isLoading = false,
-    this.backgroundColor,
-    this.textColor,
-    this.width,
-    this.height = 48,
-    this.icon,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return SizedBox(
-      width: width ?? double.infinity,
-      height: height,
-      child: isOutlined
-          ? OutlinedButton(
-              style: OutlinedButton.styleFrom(
-                side: BorderSide(
-                  color: backgroundColor ?? AppColors.primaryColor,
-                  width: 2,
-                ),
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(8),
-                ),
+  // ── 11. ERROR SNACKBAR ─────────────────────────────────────
+  static void showError(BuildContext context, String message) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Row(
+          children: [
+            const Icon(Icons.error_outline, color: Colors.white, size: 18),
+            const SizedBox(width: 8),
+            Expanded(
+              child: Text(
+                message,
+                style: const TextStyle(fontFamily: 'Public Sans'),
               ),
-              onPressed: isLoading ? null : onPressed,
-              child: _buildButtonContent(),
-            )
-          : ElevatedButton(
-              style: ElevatedButton.styleFrom(
-                backgroundColor: backgroundColor ?? AppColors.primaryColor,
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(8),
-                ),
-                elevation: 0,
-              ),
-              onPressed: isLoading ? null : onPressed,
-              child: _buildButtonContent(),
             ),
-    );
-  }
-
-  Widget _buildButtonContent() {
-    if (isLoading) {
-      return const SizedBox(
-        height: 20,
-        width: 20,
-        child: CircularProgressIndicator(
-          strokeWidth: 2,
-          valueColor: AlwaysStoppedAnimation(AppColors.primaryColor),
+          ],
         ),
-      );
-    }
-
-    if (icon != null) {
-      return Row(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          Icon(icon, color: textColor ?? Colors.black),
-          const SizedBox(width: 8),
-          Text(text),
-        ],
-      );
-    }
-
-    return Text(
-      text,
-      style: TextStyle(
-        color: textColor ?? Colors.black,
-        fontSize: 16,
-        fontWeight: FontWeight.w600,
+        backgroundColor: AppColors.snackBarError,
+        duration: const Duration(seconds: 4),
+        behavior: SnackBarBehavior.floating,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
       ),
     );
   }
-}
 
-/// Custom Card with consistent styling
-class CustomCard extends StatelessWidget {
-  final Widget child;
-  final Color? backgroundColor;
-  final Color? borderColor;
-  final double borderWidth;
-  final double borderRadius;
-  final EdgeInsets padding;
-  final VoidCallback? onTap;
-  final BoxBorder? border;
+  // ── 12. SUCCESS SNACKBAR ────────────────────────────────────
+  static void showSuccess(BuildContext context, String message) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Row(
+          children: [
+            const Icon(
+              Icons.check_circle_outline,
+              color: Colors.white,
+              size: 18,
+            ),
+            const SizedBox(width: 8),
+            Expanded(
+              child: Text(
+                message,
+                style: const TextStyle(fontFamily: 'Public Sans'),
+              ),
+            ),
+          ],
+        ),
+        backgroundColor: AppColors.snackBarSuccess,
+        duration: const Duration(seconds: 3),
+        behavior: SnackBarBehavior.floating,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+      ),
+    );
+  }
 
-  const CustomCard({
-    super.key,
-    required this.child,
-    this.backgroundColor,
-    this.borderColor,
-    this.borderWidth = 0.5,
-    this.borderRadius = 12,
-    this.padding = const EdgeInsets.all(16),
-    this.onTap,
-    this.border,
-  });
+  // ── 13. INFO SNACKBAR ───────────────────────────────────────
+  static void showInfo(BuildContext context, String message) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Row(
+          children: [
+            const Icon(Icons.info_outline, color: Colors.white, size: 18),
+            const SizedBox(width: 8),
+            Expanded(
+              child: Text(
+                message,
+                style: const TextStyle(fontFamily: 'Public Sans'),
+              ),
+            ),
+          ],
+        ),
+        backgroundColor: AppColors.snackBarInfo,
+        duration: const Duration(seconds: 3),
+        behavior: SnackBarBehavior.floating,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+      ),
+    );
+  }
 
-  @override
-  Widget build(BuildContext context) {
+  // ── 14. ENERGY SELECTION TILE ───────────────────────────────
+  /// Glassmorphic selection tile.
+  static Widget selectionTile({
+    required bool isSelected,
+    required VoidCallback onTap,
+    required Widget child,
+    EdgeInsets padding = const EdgeInsets.symmetric(
+      horizontal: 20,
+      vertical: 16,
+    ),
+    double borderRadius = 16,
+  }) {
     return GestureDetector(
       onTap: onTap,
-      child: Container(
+      child: AnimatedContainer(
+        duration: const Duration(milliseconds: 250),
+        curve: Curves.easeInOut,
         padding: padding,
         decoration: BoxDecoration(
-          color: backgroundColor ?? AppColors.cardBg,
+          color: isSelected
+              ? AppColors.primary.withValues(alpha: 0.1)
+              : AppColors.surfaceContainerHigh,
           borderRadius: BorderRadius.circular(borderRadius),
-          border: border ??
-              Border.all(
-                color: borderColor ?? AppColors.borderColor,
-                width: borderWidth,
-              ),
+          border: Border.all(
+            color: isSelected ? AppColors.primary : AppColors.ghostBorder,
+            width: isSelected ? 2 : 1,
+          ),
+          boxShadow: isSelected
+              ? [
+                  BoxShadow(
+                    color: AppColors.primary.withValues(alpha: 0.15),
+                    blurRadius: 20,
+                    spreadRadius: -5,
+                  ),
+                ]
+              : null,
         ),
         child: child,
       ),
     );
   }
-}
 
-/// Custom Text Field with consistent styling
-class CustomTextField extends StatelessWidget {
-  final TextEditingController controller;
-  final String labelText;
-  final String? hintText;
-  final IconData? prefixIcon;
-  final TextInputType keyboardType;
-  final int maxLines;
-  final int minLines;
-  final bool obscureText;
-  final String? Function(String?)? validator;
-  final void Function(String)? onChanged;
-
-  const CustomTextField({
-    super.key,
-    required this.controller,
-    required this.labelText,
-    this.hintText,
-    this.prefixIcon,
-    this.keyboardType = TextInputType.text,
-    this.maxLines = 1,
-    this.minLines = 1,
-    this.obscureText = false,
-    this.validator,
-    this.onChanged,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return TextField(
-      controller: controller,
-      keyboardType: keyboardType,
-      obscureText: obscureText,
-      maxLines: maxLines,
-      minLines: minLines,
-      onChanged: onChanged,
-      style: const TextStyle(color: AppColors.textWhite),
-      decoration: InputDecoration(
-        labelText: labelText,
-        hintText: hintText,
-        labelStyle: const TextStyle(color: AppColors.textGrey),
-        hintStyle: const TextStyle(color: AppColors.textGrey),
-        prefixIcon: prefixIcon != null ? Icon(prefixIcon, color: AppColors.primaryColor) : null,
-        border: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(8),
-          borderSide: const BorderSide(color: AppColors.borderColor),
+  // ── 15. ENERGY SELECTOR CHIP ────────────────────────────────
+  static Widget selectorChip({
+    required String label,
+    required bool isSelected,
+    required VoidCallback onTap,
+  }) {
+    return GestureDetector(
+      onTap: onTap,
+      child: AnimatedContainer(
+        duration: const Duration(milliseconds: 200),
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+        decoration: BoxDecoration(
+          color: isSelected
+              ? AppColors.primary
+              : AppColors.surfaceContainerHigh,
+          borderRadius: BorderRadius.circular(9999),
+          border: Border.all(
+            color: isSelected ? AppColors.primary : AppColors.ghostBorder,
+            width: 1,
+          ),
         ),
-        enabledBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(8),
-          borderSide: const BorderSide(color: AppColors.borderColor),
-        ),
-        focusedBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(8),
-          borderSide: const BorderSide(color: AppColors.primaryColor, width: 2),
+        child: Text(
+          label,
+          style: TextStyle(
+            fontFamily: 'Inter',
+            color: isSelected
+                ? AppColors.onPrimary
+                : AppColors.onSurfaceVariant,
+            fontWeight: FontWeight.w600,
+            fontSize: 13,
+          ),
         ),
       ),
     );
   }
-}
 
-/// Custom BottomNav Item
-class CustomBottomNavItem extends StatelessWidget {
-  final IconData icon;
-  final String label;
-  final bool isActive;
-  final VoidCallback onTap;
-
-  const CustomBottomNavItem({
-    super.key,
-    required this.icon,
-    required this.label,
-    required this.isActive,
-    required this.onTap,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return GestureDetector(
-      onTap: onTap,
-      child: Padding(
-        padding: const EdgeInsets.symmetric(vertical: 12),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Icon(
-              icon,
-              color: isActive ? AppColors.primaryColor : AppColors.textGrey,
-              size: 24,
+  // ── 16. SCREEN HEADER ───────────────────────────────────────
+  /// Reusable header with Void background and accent.
+  static Widget screenHeader({
+    required String title,
+    String? subtitle,
+    String? emoji,
+    bool showBack = false,
+    VoidCallback? onBack,
+    List<Widget> extraWidgets = const [],
+  }) {
+    return Column(
+      children: [
+        const SizedBox(height: 50),
+        if (showBack)
+          Align(
+            alignment: Alignment.topLeft,
+            child: IconButton(
+              icon: const Icon(Icons.arrow_back, color: AppColors.onSurface),
+              onPressed: onBack,
             ),
-            const SizedBox(height: 4),
-            Text(
-              label,
-              style: TextStyle(
-                color: isActive ? AppColors.primaryColor : AppColors.textGrey,
-                fontSize: 10,
+          )
+        else
+          const SizedBox(height: 8),
+        if (emoji != null) Text(emoji, style: const TextStyle(fontSize: 44)),
+        if (emoji != null) const SizedBox(height: 8),
+        Text(
+          title,
+          style: const TextStyle(
+            fontFamily: 'Manrope',
+            color: AppColors.onSurface,
+            fontSize: 26,
+            fontWeight: FontWeight.w700,
+            letterSpacing: -0.02,
+          ),
+        ),
+        if (subtitle != null) ...[
+          const SizedBox(height: 6),
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 30),
+            child: Text(
+              subtitle,
+              textAlign: TextAlign.center,
+              style: const TextStyle(
+                fontFamily: 'Public Sans',
+                color: AppColors.onSurfaceVariant,
+                fontSize: 14,
+                height: 1.5,
               ),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-}
-
-/// Custom Tab Button for AppBar
-class CustomTabButton extends StatelessWidget {
-  final String label;
-  final bool isSelected;
-  final VoidCallback onTap;
-
-  const CustomTabButton({
-    super.key,
-    required this.label,
-    required this.isSelected,
-    required this.onTap,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return GestureDetector(
-      onTap: onTap,
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          Text(
-            label,
-            textAlign: TextAlign.center,
-            style: TextStyle(
-              color: isSelected ? AppColors.primaryColor : AppColors.textGrey,
-              fontSize: 11,
-              fontWeight: isSelected ? FontWeight.w600 : FontWeight.w400,
             ),
           ),
-          if (isSelected)
-            Padding(
-              padding: const EdgeInsets.only(top: 6),
-              child: Container(
-                height: 2,
-                width: 24,
-                color: AppColors.primaryColor,
-              ),
-            ),
         ],
-      ),
-    );
-  }
-}
-
-/// FadeIn Animation Widget
-class FadeInAnimation extends StatefulWidget {
-  final Widget child;
-  final Duration duration;
-  final Curve curve;
-  final int delay;
-
-  const FadeInAnimation({
-    super.key,
-    required this.child,
-    this.duration = const Duration(milliseconds: 500),
-    this.curve = Curves.easeIn,
-    this.delay = 0,
-  });
-
-  @override
-  State<FadeInAnimation> createState() => _FadeInAnimationState();
-}
-
-class _FadeInAnimationState extends State<FadeInAnimation>
-    with TickerProviderStateMixin {
-  late AnimationController _controller;
-  late Animation<double> _animation;
-
-  @override
-  void initState() {
-    super.initState();
-    _controller = AnimationController(duration: widget.duration, vsync: this);
-    _animation = Tween<double>(begin: 0, end: 1).animate(
-      CurvedAnimation(parent: _controller, curve: widget.curve),
-    );
-
-    Future.delayed(Duration(milliseconds: widget.delay), () {
-      if (mounted) _controller.forward();
-    });
-  }
-
-  @override
-  void dispose() {
-    _controller.dispose();
-    super.dispose();
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return FadeTransition(opacity: _animation, child: widget.child);
-  }
-}
-
-/// SlideIn Animation Widget
-class SlideInAnimation extends StatefulWidget {
-  final Widget child;
-  final Duration duration;
-  final Curve curve;
-  final Offset begin;
-  final int delay;
-
-  const SlideInAnimation({
-    super.key,
-    required this.child,
-    this.duration = const Duration(milliseconds: 500),
-    this.curve = Curves.easeOut,
-    this.begin = const Offset(0, 0.3),
-    this.delay = 0,
-  });
-
-  @override
-  State<SlideInAnimation> createState() => _SlideInAnimationState();
-}
-
-class _SlideInAnimationState extends State<SlideInAnimation>
-    with TickerProviderStateMixin {
-  late AnimationController _controller;
-  late Animation<Offset> _animation;
-
-  @override
-  void initState() {
-    super.initState();
-    _controller = AnimationController(duration: widget.duration, vsync: this);
-    _animation = Tween<Offset>(begin: widget.begin, end: Offset.zero).animate(
-      CurvedAnimation(parent: _controller, curve: widget.curve),
-    );
-
-    Future.delayed(Duration(milliseconds: widget.delay), () {
-      if (mounted) _controller.forward();
-    });
-  }
-
-  @override
-  void dispose() {
-    _controller.dispose();
-    super.dispose();
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return SlideTransition(position: _animation, child: widget.child);
-  }
-}
-
-/// Scale Animation Widget
-class ScaleAnimation extends StatefulWidget {
-  final Widget child;
-  final Duration duration;
-  final Curve curve;
-  final double begin;
-  final int delay;
-
-  const ScaleAnimation({
-    super.key,
-    required this.child,
-    this.duration = const Duration(milliseconds: 500),
-    this.curve = Curves.elasticOut,
-    this.begin = 0.8,
-    this.delay = 0,
-  });
-
-  @override
-  State<ScaleAnimation> createState() => _ScaleAnimationState();
-}
-
-class _ScaleAnimationState extends State<ScaleAnimation>
-    with TickerProviderStateMixin {
-  late AnimationController _controller;
-  late Animation<double> _animation;
-
-  @override
-  void initState() {
-    super.initState();
-    _controller = AnimationController(duration: widget.duration, vsync: this);
-    _animation = Tween<double>(begin: widget.begin, end: 1.0).animate(
-      CurvedAnimation(parent: _controller, curve: widget.curve),
-    );
-
-    Future.delayed(Duration(milliseconds: widget.delay), () {
-      if (mounted) _controller.forward();
-    });
-  }
-
-  @override
-  void dispose() {
-    _controller.dispose();
-    super.dispose();
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return ScaleTransition(scale: _animation, child: widget.child);
-  }
-}
-
-/// Custom Dialog Helper
-class AppDialog {
-  static void show({
-    required BuildContext context,
-    required String title,
-    required String content,
-    String? confirmText,
-    String? cancelText,
-    VoidCallback? onConfirm,
-    VoidCallback? onCancel,
-  }) {
-    showDialog(
-      context: context,
-      builder: (context) => AlertDialog(
-        backgroundColor: AppColors.cardBg,
-        title: Text(
-          title,
-          style: const TextStyle(color: AppColors.textWhite),
-        ),
-        content: Text(
-          content,
-          style: const TextStyle(color: AppColors.textGrey),
-        ),
-        actions: [
-          if (cancelText != null)
-            TextButton(
-              onPressed: onCancel ?? () => Navigator.pop(context),
-              child: Text(
-                cancelText,
-                style: const TextStyle(color: AppColors.textGrey),
-              ),
-            ),
-          if (confirmText != null)
-            ElevatedButton(
-              style: ElevatedButton.styleFrom(
-                backgroundColor: AppColors.primaryColor,
-              ),
-              onPressed: onConfirm,
-              child: Text(
-                confirmText,
-                style: const TextStyle(color: Colors.black),
-              ),
-            ),
-        ],
-      ),
-    );
-  }
-}
-
-/// Custom SnackBar Helper
-class AppSnackBar {
-  static void show({
-    required BuildContext context,
-    required String message,
-    Color? backgroundColor,
-    Duration duration = const Duration(seconds: 2),
-  }) {
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text(message),
-        backgroundColor: backgroundColor ?? AppColors.primaryColor,
-        behavior: SnackBarBehavior.floating,
-        duration: duration,
-      ),
+        ...extraWidgets,
+        const SizedBox(height: 24),
+      ],
     );
   }
 
-  static void success({
-    required BuildContext context,
-    required String message,
-  }) {
-    show(context: context, message: message, backgroundColor: AppColors.successGreen);
+  // ── 17. CREATE STANDARD ANIMATION CONTROLLER ────────────────
+  static AnimationController createButtonController(TickerProvider vsync) {
+    return AnimationController(
+      vsync: vsync,
+      duration: const Duration(seconds: 2),
+    )..repeat(reverse: true);
   }
 
-  static void error({
-    required BuildContext context,
-    required String message,
-  }) {
-    show(context: context, message: message, backgroundColor: AppColors.errorRed);
-  }
-
-  static void info({
-    required BuildContext context,
-    required String message,
-  }) {
-    show(context: context, message: message, backgroundColor: AppColors.infoBlue);
-  }
-}
-
-/// Custom Divider
-class CustomDivider extends StatelessWidget {
-  final double height;
-  final Color? color;
-  final EdgeInsets padding;
-
-  const CustomDivider({
-    super.key,
-    this.height = 1,
-    this.color,
-    this.padding = const EdgeInsets.symmetric(vertical: 16),
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return Padding(
-      padding: padding,
-      child: Divider(
-        height: height,
-        color: color ?? AppColors.borderColor,
-      ),
+  // ── 18. CREATE SPLASH CONTROLLER ────────────────────────────
+  static AnimationController createSplashController(TickerProvider vsync) {
+    return AnimationController(
+      vsync: vsync,
+      duration: const Duration(milliseconds: 1400),
     );
   }
+
+  // ── 19. PULSE INDICATOR COMPONENT ───────────────────────────
+  /// Custom pulse dot with glow for "Live" status.
+  static Widget pulseIndicator({double size = 8}) {
+    return _PulseIndicator(size: size);
+  }
 }
 
-/// Custom Loading Spinner
-class CustomLoadingSpinner extends StatelessWidget {
-  final Color? color;
+class _PulseIndicator extends StatefulWidget {
   final double size;
 
-  const CustomLoadingSpinner({
-    super.key,
-    this.color,
-    this.size = 50,
-  });
+  const _PulseIndicator({required this.size});
 
   @override
-  Widget build(BuildContext context) {
-    return Center(
-      child: SizedBox(
-        width: size,
-        height: size,
-        child: CircularProgressIndicator(
-          valueColor: AlwaysStoppedAnimation(
-            color ?? AppColors.primaryColor,
-          ),
-          strokeWidth: 3,
-        ),
-      ),
-    );
-  }
+  State<_PulseIndicator> createState() => _PulseIndicatorState();
 }
 
-/// Custom Empty State
-class CustomEmptyState extends StatelessWidget {
-  final IconData icon;
-  final String title;
-  final String subtitle;
-  final VoidCallback? onRetry;
+class _PulseIndicatorState extends State<_PulseIndicator>
+    with SingleTickerProviderStateMixin {
+  late AnimationController _controller;
+  late Animation<double> _scaleAnimation;
+  late Animation<double> _opacityAnimation;
 
-  const CustomEmptyState({
-    super.key,
-    required this.icon,
-    required this.title,
-    required this.subtitle,
-    this.onRetry,
-  });
+  @override
+  void initState() {
+    super.initState();
+    _controller = AnimationController(
+      duration: const Duration(milliseconds: 1500),
+      vsync: this,
+    )..repeat();
+
+    _scaleAnimation = Tween<double>(
+      begin: 1.0,
+      end: 2.5,
+    ).animate(CurvedAnimation(parent: _controller, curve: Curves.easeOut));
+
+    _opacityAnimation = Tween<double>(
+      begin: 0.6,
+      end: 0.0,
+    ).animate(CurvedAnimation(parent: _controller, curve: Curves.easeOut));
+  }
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
-    return Center(
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
+    return SizedBox(
+      width: widget.size * 2,
+      height: widget.size * 2,
+      child: Stack(
+        alignment: Alignment.center,
         children: [
-          Icon(
-            icon,
-            size: 64,
-            color: AppColors.textGrey,
+          AnimatedBuilder(
+            animation: _controller,
+            builder: (context, child) {
+              return Transform.scale(
+                scale: _scaleAnimation.value,
+                child: Container(
+                  width: widget.size,
+                  height: widget.size,
+                  decoration: BoxDecoration(
+                    shape: BoxShape.circle,
+                    color: AppColors.primary.withValues(
+                      alpha: _opacityAnimation.value,
+                    ),
+                  ),
+                ),
+              );
+            },
           ),
-          const SizedBox(height: 16),
-          Text(
-            title,
-            style: const TextStyle(
-              color: AppColors.textWhite,
-              fontSize: 18,
-              fontWeight: FontWeight.w600,
+          Container(
+            width: widget.size,
+            height: widget.size,
+            decoration: const BoxDecoration(
+              shape: BoxShape.circle,
+              color: AppColors.primary,
+              boxShadow: [
+                BoxShadow(
+                  color: Color(0x4039FF14),
+                  blurRadius: 8,
+                  spreadRadius: 2,
+                ),
+              ],
             ),
           ),
-          const SizedBox(height: 8),
-          Text(
-            subtitle,
-            textAlign: TextAlign.center,
-            style: const TextStyle(
-              color: AppColors.textGrey,
-              fontSize: 14,
-            ),
-          ),
-          if (onRetry != null)
-            Padding(
-              padding: const EdgeInsets.only(top: 24),
-              child: CustomButton(
-                text: 'Retry',
-                onPressed: onRetry!,
-                width: 120,
-              ),
-            ),
         ],
       ),
     );
