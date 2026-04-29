@@ -26,7 +26,7 @@ class RouteResult {
 class MapsService {
 
   // ⚠️  CONFIGURE YOUR API KEY HERE
-  static const String _googleMapsApiKey = 'AIzaSyCIbhZy8Pcy0ljq9BSXsh2pimoRyBtc1DE';
+  static const String _googleMapsApiKey = '';
 
   final PolylinePoints _polylinePoints = PolylinePoints();
 
