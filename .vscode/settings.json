@@ -1,0 +1,7 @@
+{
+    "cmake.ignoreCMakeListsMissing": true,
+    "cSpell.words": [
+        "nexvolt"
+    ],
+    "java.configuration.updateBuildConfiguration": "interactive"
+}

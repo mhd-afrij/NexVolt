@@ -1,0 +1,358 @@
+{
+  "vehicles": [
+    {
+      "id": "v1",
+      "name": "Tesla Model X",
+      "plateNumber": "NEX 1024",
+      "battery": 82.5,
+      "imageUrl": "https://images.unsplash.com/photo-1560958089-b8a1929cea89?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80",
+      "location": "Home Garage"
+    },
+    {
+      "id": "v2",
+      "name": "Porsche Taycan",
+      "plateNumber": "EV 9001",
+      "battery": 45.0,
+      "imageUrl": "https://images.unsplash.com/photo-1614200187524-dc4b892acf16?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80",
+      "location": "Office Parking"
+    },
+    {
+      "id": "v3",
+      "name": "Rivian R1T",
+      "plateNumber": "RIV 4X4",
+      "battery": 15.0,
+      "imageUrl": "https://tse2.mm.bing.net/th/id/OIP.c2ZfhWnrADuO3oYBZyGkeAHaDw?rs=1&pid=ImgDetMain&o=7&rm=3",
+      "location": "Charging Station"
+    },
+    {
+      "id": "v4",
+      "name": "Polestar 2",
+      "plateNumber": "POL 2024",
+      "battery": 78.0,
+      "imageUrl": "https://images.unsplash.com/photo-1603584173870-7f23fdae1b7a?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80",
+      "location": "Street Parking"
+    },
+    {
+      "id": "v5",
+      "name": "Ford Mustang Mach-E",
+      "plateNumber": "MAC E001",
+      "battery": 92.0,
+      "imageUrl": "https://images.unsplash.com/photo-1558618666-fcd25c85cd64?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80",
+      "location": "Home Garage"
+    },
+    {
+      "id": "v6",
+      "name": "Audi e-tron GT",
+      "plateNumber": "ETR 2026",
+      "battery": 68.0,
+      "imageUrl": "https://tse2.mm.bing.net/th/id/OIP.fQO30cvLqez7PAiTYfPvIAHaEK?rs=1&pid=ImgDetMain&o=7&rm=3",
+      "location": "Downtown Lot"
+    }
+  ],
+  "timelineEvents": [
+    {
+      "id": "t1",
+      "vehicleId": "v1",
+      "title": "Tire Inspection",
+      "type": "inspection",
+      "mileage": 15000,
+      "date": "2026-04-10T12:00:00.000Z",
+      "progress": 0.1
+    },
+    {
+      "id": "t2",
+      "vehicleId": "v1",
+      "title": "Supercharging",
+      "type": "charge",
+      "mileage": 14800,
+      "date": "2026-04-03T12:00:00.000Z",
+      "progress": 1.0
+    },
+    {
+      "id": "t3",
+      "vehicleId": "v1",
+      "title": "Brake Fluid Check",
+      "type": "maintenance",
+      "mileage": 10000,
+      "date": "2026-03-05T12:00:00.000Z",
+      "progress": 1.0
+    },
+    {
+      "id": "t4",
+      "vehicleId": "v2",
+      "title": "Routine Wheel Alignment",
+      "type": "maintenance",
+      "mileage": 7200,
+      "date": "2026-04-07T09:00:00.000Z",
+      "progress": 0.6
+    },
+    {
+      "id": "t5",
+      "vehicleId": "v2",
+      "title": "Charging Session",
+      "type": "charge",
+      "mileage": 7060,
+      "date": "2026-04-02T18:00:00.000Z",
+      "progress": 1.0
+    },
+    {
+      "id": "t6",
+      "vehicleId": "v3",
+      "title": "Software Update",
+      "type": "maintenance",
+      "mileage": 10500,
+      "date": "2026-04-01T14:00:00.000Z",
+      "progress": 1.0
+    },
+    {
+      "id": "t7",
+      "vehicleId": "v3",
+      "title": "Battery Calibration",
+      "type": "maintenance",
+      "mileage": 10200,
+      "date": "2026-03-28T10:00:00.000Z",
+      "progress": 1.0
+    },
+    {
+      "id": "t8",
+      "vehicleId": "v4",
+      "title": "Winter Tire Swap",
+      "type": "maintenance",
+      "mileage": 12000,
+      "date": "2026-03-15T09:00:00.000Z",
+      "progress": 1.0
+    },
+    {
+      "id": "t9",
+      "vehicleId": "v4",
+      "title": "Cabin Filter Replacement",
+      "type": "maintenance",
+      "mileage": 11800,
+      "date": "2026-03-12T11:00:00.000Z",
+      "progress": 1.0
+    },
+    {
+      "id": "t10",
+      "vehicleId": "v5",
+      "title": "DC Fast Charging",
+      "type": "charge",
+      "mileage": 3200,
+      "date": "2026-04-05T16:00:00.000Z",
+      "progress": 1.0
+    },
+    {
+      "id": "t11",
+      "vehicleId": "v5",
+      "title": "Alignment Check",
+      "type": "maintenance",
+      "mileage": 3000,
+      "date": "2026-03-25T13:00:00.000Z",
+      "progress": 1.0
+    },
+    {
+      "id": "t12",
+      "vehicleId": "v6",
+      "title": "Annual Service",
+      "type": "maintenance",
+      "mileage": 8500,
+      "date": "2026-04-08T08:00:00.000Z",
+      "progress": 0.3
+    }
+  ],
+  "distanceLogs": [
+    {
+      "id": "d1",
+      "vehicleId": "v1",
+      "date": "2026-03-31T12:00:00.000Z",
+      "distance": 45
+    },
+    {
+      "id": "d2",
+      "vehicleId": "v1",
+      "date": "2026-04-01T12:00:00.000Z",
+      "distance": 12
+    },
+    {
+      "id": "d3",
+      "vehicleId": "v1",
+      "date": "2026-04-02T12:00:00.000Z",
+      "distance": 80
+    },
+    {
+      "id": "d4",
+      "vehicleId": "v1",
+      "date": "2026-04-03T12:00:00.000Z",
+      "distance": 65
+    },
+    {
+      "id": "d5",
+      "vehicleId": "v1",
+      "date": "2026-04-04T12:00:00.000Z",
+      "distance": 10
+    },
+    {
+      "id": "d6",
+      "vehicleId": "v1",
+      "date": "2026-04-05T12:00:00.000Z",
+      "distance": 0
+    },
+    {
+      "id": "d7",
+      "vehicleId": "v1",
+      "date": "2026-04-06T12:00:00.000Z",
+      "distance": 30
+    },
+    {
+      "id": "d8",
+      "vehicleId": "v2",
+      "date": "2026-04-01T08:00:00.000Z",
+      "distance": 25
+    },
+    {
+      "id": "d9",
+      "vehicleId": "v2",
+      "date": "2026-04-02T08:00:00.000Z",
+      "distance": 18
+    },
+    {
+      "id": "d10",
+      "vehicleId": "v2",
+      "date": "2026-04-03T08:00:00.000Z",
+      "distance": 32
+    },
+    {
+      "id": "d11",
+      "vehicleId": "v3",
+      "date": "2026-03-30T14:00:00.000Z",
+      "distance": 150
+    },
+    {
+      "id": "d12",
+      "vehicleId": "v3",
+      "date": "2026-03-31T14:00:00.000Z",
+      "distance": 95
+    },
+    {
+      "id": "d13",
+      "vehicleId": "v4",
+      "date": "2026-04-02T16:00:00.000Z",
+      "distance": 40
+    },
+    {
+      "id": "d14",
+      "vehicleId": "v4",
+      "date": "2026-04-03T16:00:00.000Z",
+      "distance": 28
+    },
+    {
+      "id": "d15",
+      "vehicleId": "v5",
+      "date": "2026-04-04T17:00:00.000Z",
+      "distance": 55
+    },
+    {
+      "id": "d16",
+      "vehicleId": "v5",
+      "date": "2026-04-05T17:00:00.000Z",
+      "distance": 42
+    },
+    {
+      "id": "d17",
+      "vehicleId": "v6",
+      "date": "2026-04-01T09:00:00.000Z",
+      "distance": 35
+    },
+    {
+      "id": "d18",
+      "vehicleId": "v6",
+      "date": "2026-04-02T09:00:00.000Z",
+      "distance": 22
+    }
+  ],
+  "maintenance": [
+    {
+      "id": "m1",
+      "vehicleId": "v1",
+      "title": "Annual Service",
+      "status": "Upcoming",
+      "date": "2026-05-20T12:00:00.000Z"
+    },
+    {
+      "id": "m2",
+      "vehicleId": "v1",
+      "title": "Software Update 4.2",
+      "status": "Completed",
+      "date": "2026-03-20T12:00:00.000Z"
+    },
+    {
+      "id": "m3",
+      "vehicleId": "v1",
+      "title": "Cabin Filter Replacement",
+      "status": "Completed",
+      "date": "2025-12-05T12:00:00.000Z"
+    },
+    {
+      "id": "m4",
+      "vehicleId": "v2",
+      "title": "Brake Pad Inspection",
+      "status": "Scheduled",
+      "date": "2026-04-15T10:00:00.000Z"
+    },
+    {
+      "id": "m5",
+      "vehicleId": "v2",
+      "title": "Tire Rotation",
+      "status": "Completed",
+      "date": "2026-03-10T14:00:00.000Z"
+    },
+    {
+      "id": "m6",
+      "vehicleId": "v3",
+      "title": "Battery Coolant Check",
+      "status": "Upcoming",
+      "date": "2026-05-01T09:00:00.000Z"
+    },
+    {
+      "id": "m7",
+      "vehicleId": "v3",
+      "title": "Wheel Alignment",
+      "status": "Completed",
+      "date": "2026-03-25T11:00:00.000Z"
+    },
+    {
+      "id": "m8",
+      "vehicleId": "v4",
+      "title": "Air Filter Replacement",
+      "status": "Scheduled",
+      "date": "2026-04-20T13:00:00.000Z"
+    },
+    {
+      "id": "m9",
+      "vehicleId": "v4",
+      "title": "Suspension Check",
+      "status": "Completed",
+      "date": "2026-03-18T10:00:00.000Z"
+    },
+    {
+      "id": "m10",
+      "vehicleId": "v5",
+      "title": "Brake Fluid Change",
+      "status": "Upcoming",
+      "date": "2026-05-10T15:00:00.000Z"
+    },
+    {
+      "id": "m11",
+      "vehicleId": "v5",
+      "title": "Battery Inspection",
+      "status": "Completed",
+      "date": "2026-03-22T12:00:00.000Z"
+    },
+    {
+      "id": "m12",
+      "vehicleId": "v6",
+      "title": "Oil Change",
+      "status": "Scheduled",
+      "date": "2026-04-25T08:00:00.000Z"
+    }
+  ]
+}

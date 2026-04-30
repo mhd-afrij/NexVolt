@@ -1,54 +1,55 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 
-/// Minimal vehicle model used within the Trip Planner feature.
-/// The full vehicle module may extend this.
+/// Represents an EV vehicle owned by a user, stored in Firestore [vehicles] collection.
 class VehicleModel {
   final String vehicleId;
   final String userId;
-  final String brand;
-  final String model;
+  final String brand;             // e.g. 'Tesla'
+  final String company;           // e.g. 'Tesla Motors'
+  final String model;             // e.g. 'Model 3'
+  final String vehicleType;       // 'Sedan' | 'SUV' | 'Hatchback' | 'Van' | 'Motorcycle'
   final double batteryCapacityKWh;
+  final String connectorType;     // 'Type 1' | 'Type 2' | 'CCS' | 'CHAdeMO' | 'Tesla'
   final double currentBatteryPercentage; // 0–100
-  final String connectorType; // e.g. "Type2", "CCS", "CHAdeMO"
-  final double efficiencyWhPerKm; // energy used per km in Wh
+  final DateTime createdAt;
 
   const VehicleModel({
     required this.vehicleId,
     required this.userId,
     required this.brand,
+    required this.company,
     required this.model,
+    required this.vehicleType,
     required this.batteryCapacityKWh,
-    required this.currentBatteryPercentage,
     required this.connectorType,
-    required this.efficiencyWhPerKm,
+    required this.currentBatteryPercentage,
+    required this.createdAt,
   });
-
-  /// Convenience getter: display name shown in dropdowns.
-  String get displayName => '$brand $model';
-
-  /// Efficiency in kWh per km (converted from Wh/km).
-  double get efficiencyKWhPerKm => efficiencyWhPerKm / 1000.0;
 
   VehicleModel copyWith({
     String? vehicleId,
     String? userId,
     String? brand,
+    String? company,
     String? model,
+    String? vehicleType,
     double? batteryCapacityKWh,
-    double? currentBatteryPercentage,
     String? connectorType,
-    double? efficiencyWhPerKm,
+    double? currentBatteryPercentage,
+    DateTime? createdAt,
   }) {
     return VehicleModel(
       vehicleId: vehicleId ?? this.vehicleId,
       userId: userId ?? this.userId,
       brand: brand ?? this.brand,
+      company: company ?? this.company,
       model: model ?? this.model,
+      vehicleType: vehicleType ?? this.vehicleType,
       batteryCapacityKWh: batteryCapacityKWh ?? this.batteryCapacityKWh,
+      connectorType: connectorType ?? this.connectorType,
       currentBatteryPercentage:
           currentBatteryPercentage ?? this.currentBatteryPercentage,
-      connectorType: connectorType ?? this.connectorType,
-      efficiencyWhPerKm: efficiencyWhPerKm ?? this.efficiencyWhPerKm,
+      createdAt: createdAt ?? this.createdAt,
     );
   }
 
@@ -57,14 +58,14 @@ class VehicleModel {
       vehicleId: map['vehicleId'] as String? ?? '',
       userId: map['userId'] as String? ?? '',
       brand: map['brand'] as String? ?? '',
+      company: map['company'] as String? ?? '',
       model: map['model'] as String? ?? '',
-      batteryCapacityKWh:
-          (map['batteryCapacityKWh'] as num?)?.toDouble() ?? 0.0,
+      vehicleType: map['vehicleType'] as String? ?? '',
+      batteryCapacityKWh: (map['batteryCapacityKWh'] as num?)?.toDouble() ?? 0.0,
+      connectorType: map['connectorType'] as String? ?? '',
       currentBatteryPercentage:
           (map['currentBatteryPercentage'] as num?)?.toDouble() ?? 0.0,
-      connectorType: map['connectorType'] as String? ?? '',
-      efficiencyWhPerKm:
-          (map['efficiencyWhPerKm'] as num?)?.toDouble() ?? 150.0,
+      createdAt: (map['createdAt'] as Timestamp?)?.toDate() ?? DateTime.now(),
     );
   }
 
@@ -73,16 +74,16 @@ class VehicleModel {
       'vehicleId': vehicleId,
       'userId': userId,
       'brand': brand,
+      'company': company,
       'model': model,
+      'vehicleType': vehicleType,
       'batteryCapacityKWh': batteryCapacityKWh,
-      'currentBatteryPercentage': currentBatteryPercentage,
       'connectorType': connectorType,
-      'efficiencyWhPerKm': efficiencyWhPerKm,
+      'currentBatteryPercentage': currentBatteryPercentage,
+      'createdAt': Timestamp.fromDate(createdAt),
     };
   }
 
-  @override
-  String toString() =>
-      'VehicleModel($brand $model, ${batteryCapacityKWh}kWh, '
-      '${currentBatteryPercentage.toStringAsFixed(0)}%, $connectorType)';
+  // Display name combining brand and model.
+  String get displayName => '$brand $model';
 }

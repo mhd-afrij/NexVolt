@@ -1,76 +1,96 @@
-import 'package:cloud_firestore/cloud_firestore.dart';
+import '../core/config/app_config.dart';
 
-/// Minimal charging station model used within the Trip Planner feature.
 class StationModel {
-  final String stationId;
-  final String name;
-  final double latitude;
-  final double longitude;
-  final List<String> chargerTypes; // e.g. ["Type2", "CCS"]
-  final int availableSlots;
-  final bool isActive;
-
   const StationModel({
-    required this.stationId,
+    required this.id,
     required this.name,
+    required this.address,
+    required this.distanceKm,
     required this.latitude,
     required this.longitude,
-    required this.chargerTypes,
-    required this.availableSlots,
-    required this.isActive,
+    this.availableSlots,
+    this.totalSlots,
+    this.status,
   });
 
+  final String id;
+  final String name;
+  final String address;
+  final double distanceKm;
+  final double latitude;
+  final double longitude;
+  final int? availableSlots;
+  final int? totalSlots;
+  final String? status;
+
+  bool get hasAvailability => availableSlots != null || totalSlots != null;
+
+  bool get isAvailable => (availableSlots ?? 0) > 0;
+
+  String get availabilityLabel {
+    if (availableSlots == null && totalSlots == null) {
+      return 'Availability live from Firebase';
+    }
+
+    if (totalSlots != null && totalSlots! > 0) {
+      return '${availableSlots ?? 0} / $totalSlots slots';
+    }
+
+    return availableSlots == null
+        ? 'Availability live from Firebase'
+        : '${availableSlots!} slots available';
+  }
+
   StationModel copyWith({
-    String? stationId,
+    String? id,
     String? name,
+    String? address,
+    double? distanceKm,
     double? latitude,
     double? longitude,
-    List<String>? chargerTypes,
     int? availableSlots,
-    bool? isActive,
+    int? totalSlots,
+    String? status,
   }) {
     return StationModel(
-      stationId: stationId ?? this.stationId,
+      id: id ?? this.id,
       name: name ?? this.name,
+      address: address ?? this.address,
+      distanceKm: distanceKm ?? this.distanceKm,
       latitude: latitude ?? this.latitude,
       longitude: longitude ?? this.longitude,
-      chargerTypes: chargerTypes ?? this.chargerTypes,
       availableSlots: availableSlots ?? this.availableSlots,
-      isActive: isActive ?? this.isActive,
+      totalSlots: totalSlots ?? this.totalSlots,
+      status: status ?? this.status,
     );
   }
 
-  factory StationModel.fromMap(Map<String, dynamic> map) {
-    // chargerTypes may be stored as List<dynamic> in Firestore
-    final rawTypes = map['chargerTypes'];
-    final List<String> types = rawTypes is List
-        ? rawTypes.map((e) => e.toString()).toList()
-        : <String>[];
-
+  factory StationModel.fromMap(String id, Map<String, dynamic> map) {
     return StationModel(
-      stationId: map['stationId'] as String? ?? '',
-      name: map['name'] as String? ?? '',
-      latitude: (map['latitude'] as num?)?.toDouble() ?? 0.0,
-      longitude: (map['longitude'] as num?)?.toDouble() ?? 0.0,
-      chargerTypes: types,
-      availableSlots: (map['availableSlots'] as num?)?.toInt() ?? 0,
-      isActive: map['isActive'] as bool? ?? false,
+      id: id,
+      name: map['name'] as String? ?? 'Station',
+      address: map['address'] as String? ?? 'Address not set',
+      distanceKm: (map['distanceKm'] as num?)?.toDouble() ?? 0,
+      latitude:
+          (map['latitude'] as num?)?.toDouble() ?? AppConfig.fallbackLatitude,
+      longitude:
+          (map['longitude'] as num?)?.toDouble() ?? AppConfig.fallbackLongitude,
+      availableSlots: (map['availableSlots'] as num?)?.toInt(),
+      totalSlots: (map['totalSlots'] as num?)?.toInt(),
+      status: map['status'] as String?,
     );
   }
 
   Map<String, dynamic> toMap() {
     return {
-      'stationId': stationId,
       'name': name,
+      'address': address,
+      'distanceKm': distanceKm,
       'latitude': latitude,
       'longitude': longitude,
-      'chargerTypes': chargerTypes,
-      'availableSlots': availableSlots,
-      'isActive': isActive,
+      if (availableSlots != null) 'availableSlots': availableSlots,
+      if (totalSlots != null) 'totalSlots': totalSlots,
+      if (status != null) 'status': status,
     };
   }
-
-  @override
-  String toString() =>
-      'StationModel($name, slots: $availableSlots, types: $chargerTypes)';
 }
