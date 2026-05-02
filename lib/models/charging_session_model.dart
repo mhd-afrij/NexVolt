@@ -73,6 +73,33 @@ class ChargingSessionModel {
       energyDeliveredKWh: (map['energyDeliveredKWh'] as num).toDouble(),
       durationMinutes: (map['durationMinutes'] as num).toInt(),
       status: map['status'] as String,
+  ChargingSessionModel({
+    required this.stationName,
+    required this.energyKwh,
+    required this.timestamp,
+  });
+
+  final String stationName;
+  final double energyKwh;
+  final DateTime timestamp;
+
+  factory ChargingSessionModel.fromMap(Map<String, dynamic> map) {
+    final raw = map['timestamp'];
+    DateTime parsed;
+    if (raw is DateTime) {
+      parsed = raw;
+    } else if (raw is Timestamp) {
+      parsed = raw.toDate();
+    } else if (raw is String) {
+      parsed = DateTime.tryParse(raw) ?? DateTime.now();
+    } else {
+      parsed = DateTime.now();
+    }
+
+    return ChargingSessionModel(
+      stationName: map['stationName'] as String? ?? 'Unknown station',
+      energyKwh: (map['energyKwh'] as num?)?.toDouble() ?? 0,
+      timestamp: parsed,
     );
   }
 
@@ -98,4 +125,10 @@ class ChargingSessionStatus {
   static const String charging = 'charging';
   static const String completed = 'completed';
   static const String stopped = 'stopped';
+}
+      'stationName': stationName,
+      'energyKwh': energyKwh,
+      'timestamp': timestamp,
+    };
+  }
 }

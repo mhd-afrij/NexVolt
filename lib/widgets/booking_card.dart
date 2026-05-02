@@ -188,5 +188,14 @@ class _InfoItem extends StatelessWidget {
         ),
       ],
     );
+
+class BookingCard extends StatelessWidget {
+  const BookingCard({super.key, required this.title});
+
+  final String title;
+
+  @override
+  Widget build(BuildContext context) {
+    return Card(child: ListTile(title: Text(title)));
   }
 }
