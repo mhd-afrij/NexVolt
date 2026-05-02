@@ -24,7 +24,6 @@ class RouteResult {
 /// For production: replace [_googleMapsApiKey] with your real key from
 /// https://console.cloud.google.com and enable the Directions API.
 class MapsService {
-
   // ⚠️  CONFIGURE YOUR API KEY HERE
   static const String _googleMapsApiKey = '';
 
@@ -58,8 +57,7 @@ class MapsService {
       final parts = <String>[
         if (p.name != null && p.name!.isNotEmpty) p.name!,
         if (p.locality != null && p.locality!.isNotEmpty) p.locality!,
-        if (p.administrativeArea != null &&
-            p.administrativeArea!.isNotEmpty)
+        if (p.administrativeArea != null && p.administrativeArea!.isNotEmpty)
           p.administrativeArea!,
       ];
       return parts.join(', ');
@@ -78,9 +76,10 @@ class MapsService {
     required LatLng destination,
   }) async {
     // ── Fallback: straight-line estimate (no API key) ─────────────────
-    if (_googleMapsApiKey.isEmpty || _googleMapsApiKey == 'YOUR_GOOGLE_MAPS_API_KEY') {
-  return _fallbackRoute(origin, destination);
-}
+    if (_googleMapsApiKey.isEmpty ||
+        _googleMapsApiKey == 'YOUR_GOOGLE_MAPS_API_KEY') {
+      return _fallbackRoute(origin, destination);
+    }
 
     // ── Google Directions API call ────────────────────────────────────
     try {
@@ -99,17 +98,15 @@ class MapsService {
 
       final data = jsonDecode(response.body) as Map<String, dynamic>;
       debugPrint('Directions API status: ${data['status']}');
-    debugPrint('Directions API error: ${data['error_message']}');
+      debugPrint('Directions API error: ${data['error_message']}');
       final routes = data['routes'] as List?;
       if (routes == null || routes.isEmpty) {
         return _fallbackRoute(origin, destination);
       }
 
       final leg = routes[0]['legs'][0] as Map<String, dynamic>;
-      final distanceMeters =
-          (leg['distance']['value'] as num).toDouble();
-      final durationSeconds =
-          (leg['duration']['value'] as num).toInt();
+      final distanceMeters = (leg['distance']['value'] as num).toDouble();
+      final durationSeconds = (leg['duration']['value'] as num).toInt();
 
       // Decode polyline from the overview_polyline field.
       final encodedPolyline =
@@ -152,20 +149,13 @@ class MapsService {
   }
 
   /// Haversine formula: returns distance in km between two lat/lng pairs.
-  double _haversineKm(
-    double lat1,
-    double lon1,
-    double lat2,
-    double lon2,
-  ) {
+  double _haversineKm(double lat1, double lon1, double lat2, double lon2) {
     const r = 6371.0; // Earth radius in km
     final dLat = _toRad(lat2 - lat1);
     final dLon = _toRad(lon2 - lon1);
-    final a = sin(dLat / 2) * sin(dLat / 2) +
-        cos(_toRad(lat1)) *
-            cos(_toRad(lat2)) *
-            sin(dLon / 2) *
-            sin(dLon / 2);
+    final a =
+        sin(dLat / 2) * sin(dLat / 2) +
+        cos(_toRad(lat1)) * cos(_toRad(lat2)) * sin(dLon / 2) * sin(dLon / 2);
     final c = 2 * atan2(sqrt(a), sqrt(1 - a));
     return r * c;
   }
